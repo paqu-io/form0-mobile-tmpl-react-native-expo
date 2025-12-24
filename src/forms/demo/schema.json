@@ -1,0 +1,165 @@
+{
+  "form": {
+    "name": "MyForm",
+    "description": "This is a test description",
+    "id": "demo-form",
+    "elements": [
+      {
+        "type": "Section",
+        "data_name": "personal_info",
+        "label": "Personal Info",
+        "display": "inline",
+        "description": null,
+        "description_mode": null,
+        "visible": true,
+        "visible_conditions": null,
+        "elements": [
+          {
+            "type": "TextField",
+            "data_name": "first_name",
+            "label": "First Name",
+            "display": "default",
+            "description": "This is a test description",
+            "description_mode": "subtext",
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": "^[a-zA-Z]+$",
+            "pattern_description": "One or more letters (uppercase or lowercase), with no spaces, numbers, or symbols",
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "4db012c8"
+          },
+          {
+            "type": "NumericField",
+            "data_name": "age",
+            "label": "Age",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "min": 16,
+            "max": 100,
+            "format": "integer",
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "2101fe8e"
+          }
+        ],
+        "key": "ee3cf7b0"
+      },
+      {
+        "type": "CalculatedField",
+        "data_name": "can_vote",
+        "label": "Eligible",
+        "display": {
+          "style": "text"
+        },
+        "description": null,
+        "description_mode": null,
+        "required": false,
+        "visible": true,
+        "visible_conditions": null,
+        "read_only": true,
+        "calculate": "IF($age >= 18, \"yes\", \"no\")",
+        "supporting_image": false,
+        "supporting_image_path": null,
+        "supporting_image_display": null,
+        "key": "df64841e"
+      },
+      {
+        "type": "CalculatedField",
+        "data_name": "calc_test",
+        "label": "calc_test",
+        "display": {
+          "style": "text"
+        },
+        "description": null,
+        "description_mode": null,
+        "required": false,
+        "visible": true,
+        "visible_conditions": null,
+        "read_only": true,
+        "calculate": "SETRESULT($age + 10 >= 30 ? true : false)",
+        "supporting_image": false,
+        "supporting_image_path": null,
+        "supporting_image_display": null,
+        "key": "e7fc4dac"
+      },
+      {
+        "type": "CalculatedField",
+        "data_name": "calc_test_new",
+        "label": "calc_test_new",
+        "display": {
+          "style": "text"
+        },
+        "description": null,
+        "description_mode": null,
+        "required": false,
+        "visible": true,
+        "visible_conditions": null,
+        "read_only": true,
+        "calculate": "$age + 88",
+        "supporting_image": false,
+        "supporting_image_path": null,
+        "supporting_image_display": null,
+        "key": "9cd73948"
+      },
+      {
+        "type": "TextField",
+        "data_name": "who_voted",
+        "label": "Who voted?",
+        "display": "default",
+        "description": null,
+        "description_mode": null,
+        "required": true,
+        "required_conditions": null,
+        "visible": false,
+        "visible_conditions": {
+          "and": [
+            {
+              "field_id": "can_vote",
+              "operator": "equal_to",
+              "value": "yes"
+            },
+            {
+              "or": [
+                {
+                  "field_id": "age",
+                  "operator": "greater_than",
+                  "value": 20
+                },
+                {
+                  "field_id": "first_name",
+                  "operator": "equal_to",
+                  "value": "Bob"
+                }
+              ]
+            }
+          ]
+        },
+        "read_only": true,
+        "read_only_conditions": null,
+        "default_value": null,
+        "pattern": null,
+        "pattern_description": null,
+        "supporting_image": false,
+        "supporting_image_path": null,
+        "supporting_image_display": null,
+        "key": "fb5c997f"
+      }
+    ]
+  }
+}

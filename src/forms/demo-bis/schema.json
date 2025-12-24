@@ -1,0 +1,91 @@
+{
+  "form": {
+    "name": "MyForm Bis",
+    "description": "This is a test description",
+    "id": "demo-form-bis",
+    "status_field": {
+      "type": "StatusField",
+      "key": "@status",
+      "data_name": "status",
+      "label": "Status",
+      "display": "default",
+      "enabled": true,
+      "visible": true,
+      "visible_conditions": null,
+      "read_only": false,
+      "read_only_conditions": null,
+      "default_value": "pending",
+      "choices": [
+        {
+          "label": "Enrolled",
+          "value": "enrolled",
+          "color": "#87D3AA"
+        },
+        {
+          "label": "Not Enrolled",
+          "value": "not_enrolled",
+          "color": "#FF00AA"
+        },
+        {
+          "label": "Pending",
+          "value": "pending",
+          "color": "#FFA5AA"
+        }
+      ]
+    },
+    "title_field": {
+      "type": "TitleField",
+      "key": "@title",
+      "data_name": "title",
+      "label": "Title",
+      "display": "default",
+      "enabled": true,
+      "visible": true,
+      "visible_conditions": null,
+      "read_only": true,
+      "read_only_conditions": null,
+      "elements": [
+        "first_name"
+      ]
+    },
+    "events": {
+      "code": null
+    },
+    "elements": [
+      {
+        "type": "Section",
+        "data_name": "personal_info",
+        "label": "Personal Infosssss",
+        "display": "inline",
+        "description": null,
+        "description_mode": null,
+        "visible": true,
+        "visible_conditions": null,
+        "elements": [
+          {
+            "type": "TextField",
+            "data_name": "first_name",
+            "label": "First Name",
+            "display": "default",
+            "description": "This is a test description",
+            "description_mode": "subtext",
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": "^[a-zA-Z]+$",
+            "pattern_description": "One or more letters (uppercase or lowercase), with no spaces, numbers, or symbols",
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "4db01299"
+          }
+        ],
+        "key": "4db012aa"
+      }
+    ]
+  }
+}
