@@ -13,6 +13,14 @@ export default function Form0Form({
   onSubmit,
   ...props
 }) {
+  const resolveMode = (value) => {
+    if (!value) return null;
+    if (value === 'readonly' || value === 'view') {
+      return 'readonly';
+    }
+    return 'edit';
+  };
+
   const renderers = useMemo(() => {
     const resolved = {};
     if (form0Config.fieldRenderers) {
@@ -26,10 +34,14 @@ export default function Form0Form({
     return resolved;
   }, []);
 
-  const effectiveMode = mode || form0Config.interaction?.defaultMode || 'edit';
+  const effectiveMode =
+    resolveMode(mode) ||
+    resolveMode(form0Config.interaction?.defaultMode) ||
+    'edit';
   const effectiveLabelPosition = labelPosition || form0Config.layout?.labelPosition || 'top';
   const effectiveLabelWidthPercent =
     labelWidthPercent ?? form0Config.layout?.labelWidthPercent ?? 30;
+  const keyboardScrollOffset = form0Config.keyboard?.scrollOffset;
 
   return (
     <FormRenderer
@@ -40,6 +52,7 @@ export default function Form0Form({
       mode={effectiveMode}
       labelPosition={effectiveLabelPosition}
       labelWidthPercent={effectiveLabelWidthPercent}
+      keyboardScrollOffset={keyboardScrollOffset}
       renderers={renderers}
       {...props}
     />

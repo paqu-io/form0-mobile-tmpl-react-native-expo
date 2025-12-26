@@ -14,6 +14,13 @@ const forms = [
     tags: ['demo', 'test'],
     loadSchema: () => import('./demo-bis/schema.json'),
   },
+  {
+    id: 'demo-form-ter',
+    title: 'Demo Enrollment Ter',
+    description: 'A showcase schema with a bit of everything to exercise the renderer.',
+    tags: ['demo', 'test'],
+    loadSchema: () => import('./demo-ter/schema.json'),
+  },
 ];
 
 export const DEFAULT_FORM_ID = forms[0]?.id ?? null;

@@ -6,6 +6,9 @@ export default {
   interaction: {
     defaultMode: 'edit',
   },
+  keyboard: {
+    scrollOffset: 48,
+  },
   fieldRenderers: {
     // Example:
     // DateField: 'date-field-custom',

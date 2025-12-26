@@ -1,0 +1,1256 @@
+{
+  "form": {
+    "name": "Demo Enrollment, this is a very long title to see what happens when the title is too long. Let's make it even longer.",
+    "description": "This is a test description",
+    "id": "demo-form",
+    "status_field": {
+      "type": "StatusField",
+      "key": "@status",
+      "data_name": "status",
+      "label": "Status",
+      "display": "default",
+      "enabled": true,
+      "visible": true,
+      "visible_conditions": null,
+      "read_only": false,
+      "read_only_conditions": null,
+      "default_value": "pending",
+      "choices": [
+        {
+          "label": "Enrolled",
+          "value": "enrolled",
+          "color": "#87D30F"
+        },
+        {
+          "label": "Not Enrolled",
+          "value": "not_enrolled",
+          "color": "#FF0000"
+        },
+        {
+          "label": "Pending",
+          "value": "pending",
+          "color": "#FFA500"
+        }
+      ]
+    },
+    "title_field": {
+      "type": "TitleField",
+      "key": "@title",
+      "data_name": "title",
+      "label": "Title",
+      "display": "default",
+      "enabled": true,
+      "visible": true,
+      "visible_conditions": null,
+      "read_only": true,
+      "read_only_conditions": null,
+      "elements": [
+        "first_name",
+        "favorite_color"
+      ]
+    },
+    "events": {
+      "code": "\n        function alertTest(event) {\n          ALERT('Warning!', 'Welcome to South America!');\n        }\n\n        ON('load-record', alertTest);\n        \n        ON('change', 'city', function (event) {\n          ALERT('Warning!', 'City changed to ' + CHOICEVALUE($city));\n          SETVALUE('who_voted', 'Hoooooola!');\n          SETVALUE('comments', 'Boooooola!');\n          SETVALUE('age', 33);\n          SETVALUE('fruit', 'banana');\n          SETVALUE('food', ['pasta', 'focaccia']);\n        })\n      "
+    },
+    "elements": [
+      {
+        "type": "Section",
+        "data_name": "personal_info",
+        "label": "Personal Info",
+        "display": "inline",
+        "description": null,
+        "description_mode": null,
+        "visible": true,
+        "visible_conditions": null,
+        "elements": [
+          {
+            "type": "TextField",
+            "data_name": "first_name",
+            "label": "First Name",
+            "display": "default",
+            "description": "This is a test description",
+            "description_mode": "subtext",
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": "^[a-zA-Z]+$",
+            "pattern_description": "One or more letters (uppercase or lowercase), with no spaces, numbers, or symbols",
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "4db012c8"
+          },
+          {
+            "type": "Section",
+            "data_name": "test_section",
+            "label": "Test section",
+            "display": "inline",
+            "description": null,
+            "description_mode": null,
+            "visible": true,
+            "visible_conditions": null,
+            "elements": [
+              {
+                "type": "TextField",
+                "data_name": "long_comment",
+                "label": "Long comment",
+                "display": "default",
+                "description": null,
+                "description_mode": null,
+                "required": true,
+                "required_conditions": null,
+                "visible": true,
+                "visible_conditions": null,
+                "read_only": false,
+                "read_only_conditions": null,
+                "default_value": null,
+                "pattern": null,
+                "pattern_description": null,
+                "supporting_image": false,
+                "supporting_image_path": null,
+                "supporting_image_display": null,
+                "key": "4db013c8"
+              },
+              {
+                "type": "Section",
+                "data_name": "test_section2",
+                "label": "Test section 2",
+                "display": "inline",
+                "description": null,
+                "description_mode": null,
+                "visible": true,
+                "visible_conditions": null,
+                "elements": [
+                  {
+                    "type": "TextField",
+                    "data_name": "long_comment2",
+                    "label": "Long comment 2",
+                    "display": "default",
+                    "description": null,
+                    "description_mode": null,
+                    "required": true,
+                    "required_conditions": null,
+                    "visible": true,
+                    "visible_conditions": null,
+                    "read_only": false,
+                    "read_only_conditions": null,
+                    "default_value": null,
+                    "pattern": null,
+                    "pattern_description": null,
+                    "supporting_image": false,
+                    "supporting_image_path": null,
+                    "supporting_image_display": null,
+                    "key": "4ff013c8"
+                  }
+                ],
+                "key": "4db087fff"
+              }
+            ],
+            "key": "4db087aa"
+          },
+          {
+            "type": "TextField",
+            "data_name": "last_name",
+            "label": "last Name",
+            "display": "default",
+            "description": "This is a test description",
+            "description_mode": "subtext",
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "2bdf514d"
+          },
+          {
+            "type": "NumericField",
+            "data_name": "age",
+            "label": "Age",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "min": 16,
+            "max": 100,
+            "format": "integer",
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "2101fe8e"
+          },
+          {
+            "type": "SingleChoiceField",
+            "data_name": "city",
+            "label": "City",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "allow_other": true,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "is_searchable": true,
+            "is_searchable_mode": "default",
+            "choices": [
+              {
+                "label": "Bogotá",
+                "value": "bogota"
+              },
+              {
+                "label": "Recanati",
+                "value": "recanati"
+              },
+              {
+                "label": "New York",
+                "value": "new_york"
+              },
+              {
+                "label": "São Paulo - Centro",
+                "value": "sao_paulo_centro"
+              }
+            ],
+            "key": "6ad23ebf"
+          },
+          {
+            "type": "SingleChoiceField",
+            "data_name": "fruit",
+            "label": "Fruit",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "allow_other": false,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "choices": [
+              {
+                "label": "Mela",
+                "value": "mela"
+              },
+              {
+                "label": "Banana",
+                "value": "banana"
+              },
+              {
+                "label": "Fragola",
+                "value": "fragola"
+              }
+            ],
+            "key": "e0ed1755"
+          },
+          {
+            "type": "MultiChoiceField",
+            "data_name": "food",
+            "label": "Please select your favorite food!",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "allow_other": false,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "choices": [
+              {
+                "label": "Pasta",
+                "value": "pasta"
+              },
+              {
+                "label": "Pizza",
+                "value": "pizza"
+              },
+              {
+                "label": "Focaccia",
+                "value": "focaccia"
+              },
+              {
+                "label": "Salumi",
+                "value": "salumi"
+              }
+            ],
+            "key": "dd2a04ad"
+          },
+          {
+            "type": "SingleChoiceField",
+            "data_name": "favorite_color",
+            "label": "Favorite Color",
+            "display": "default",
+            "description": "Pick the color you like the most.",
+            "description_mode": "default",
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "allow_other": true,
+            "choices": [
+              {
+                "value": "red",
+                "label": "Red"
+              },
+              {
+                "value": "blue",
+                "label": "Blue"
+              },
+              {
+                "value": "green",
+                "label": "Green"
+              }
+            ],
+            "supporting_image": true,
+            "supporting_image_path": "palette.jpg",
+            "supporting_image_display": "dialog",
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "key": "08121c6b"
+          },
+          {
+            "type": "SingleChoiceField",
+            "data_name": "contact_method",
+            "label": "Preferred Contact Method",
+            "display": "radio",
+            "description": "We will use this channel for follow ups.",
+            "description_mode": "subtext",
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "allow_other": false,
+            "choices": [
+              {
+                "value": "email",
+                "label": "Email"
+              },
+              {
+                "value": "phone",
+                "label": "Phone"
+              }
+            ],
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "key": "e58e5e60"
+          },
+          {
+            "type": "BooleanField",
+            "data_name": "newsletter_opt_in",
+            "label": "Subscribe to newsletter?",
+            "display": "default",
+            "description": "Receive occasional updates and product news.",
+            "description_mode": "default",
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "choices": [
+              {
+                "value": "yes",
+                "label": "Yes, sign me up"
+              },
+              {
+                "value": "no",
+                "label": "No thanks"
+              }
+            ],
+            "third_option_enabled": false,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "7c577d23"
+          },
+          {
+            "type": "MultiChoiceField",
+            "data_name": "interests",
+            "label": "What topics interest you?",
+            "display": "default",
+            "description": "Select all subjects you would like to hear about.",
+            "description_mode": "default",
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": [],
+            "allow_other": true,
+            "choices": [
+              {
+                "value": "technology",
+                "label": "Technology"
+              },
+              {
+                "value": "design",
+                "label": "Design"
+              },
+              {
+                "value": "finance",
+                "label": "Finance"
+              },
+              {
+                "value": "marketing",
+                "label": "Marketing"
+              }
+            ],
+            "supporting_image": true,
+            "supporting_image_path": "topics.jpg",
+            "supporting_image_display": "default",
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "key": "4a29c9a7"
+          },
+          {
+            "type": "MultiChoiceField",
+            "data_name": "available_days",
+            "label": "Available Days",
+            "display": "checkbox",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": [],
+            "allow_other": false,
+            "choices": [
+              {
+                "value": "mon",
+                "label": "Monday"
+              },
+              {
+                "value": "wed",
+                "label": "Wednesday"
+              },
+              {
+                "value": "fri",
+                "label": "Friday"
+              }
+            ],
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "key": "a9d2d33e"
+          },
+          {
+            "type": "DateField",
+            "data_name": "contact_date",
+            "label": "Preferred Contact Date",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": "now",
+            "key": "d883f876"
+          },
+          {
+            "type": "TimeField",
+            "data_name": "contact_time",
+            "label": "Preferred Contact Time",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": "now",
+            "key": "2a1ab6b6"
+          },
+          {
+            "type": "SignatureField",
+            "data_name": "signature",
+            "label": "Please add your signature below",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "agreement_text": "I agree to the terms and conditions",
+            "key": "b9a2b695"
+          },
+          {
+            "type": "PhotoField",
+            "data_name": "house_photo",
+            "label": "Take a photo of the house",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "min_length": 2,
+            "max_length": 3,
+            "key": "7ec54fda"
+          },
+          {
+            "type": "VideoField",
+            "data_name": "house_video",
+            "label": "Take a video of the house",
+            "display": "default",
+            "description": "This is a description of the video field",
+            "description_mode": "subtext",
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "min_length": 2,
+            "max_length": 3,
+            "key": "d8b80c3e"
+          },
+          {
+            "type": "FormLinkField",
+            "data_name": "test_form_link",
+            "label": "This is a form link test",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "allow_creating_records": true,
+            "allow_existing_records": true,
+            "allow_updating_records": false,
+            "allow_multiple_records": false,
+            "form_id": "01936b8e-7f2a-7c3d-9e4f-123456789abc",
+            "record_conditions": {
+              "and": [
+                {
+                  "linked_form_field_id": "sample123",
+                  "operator": "equal_to",
+                  "value": "test_value_1"
+                },
+                {
+                  "or": [
+                    {
+                      "linked_form_field_id": "sample456",
+                      "operator": "greater_than",
+                      "value": 1.55
+                    },
+                    {
+                      "linked_form_field_id": "sample789",
+                      "operator": "equal_to",
+                      "value": "test_value_3"
+                    }
+                  ]
+                }
+              ]
+            },
+            "record_defaults": [
+              {
+                "source_field_id": "sample567",
+                "destination_field_id": "first_import"
+              },
+              {
+                "source_field_id": "sample234",
+                "destination_field_id": "second_import"
+              }
+            ],
+            "key": "c491fac5"
+          },
+          {
+            "type": "TextField",
+            "data_name": "first_import",
+            "label": "First IMPORT",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": true,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "53cc4c9f"
+          },
+          {
+            "type": "SingleChoiceField",
+            "data_name": "second_import",
+            "label": "Second IMPORT",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": true,
+            "read_only_conditions": null,
+            "default_value": null,
+            "allow_other": false,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "choices": [
+              {
+                "label": "Airplane",
+                "value": "airplane"
+              },
+              {
+                "label": "Car",
+                "value": "car"
+              }
+            ],
+            "key": "9962921b"
+          }
+        ],
+        "key": "ee3cf7b0"
+      },
+      {
+        "type": "CalculatedField",
+        "data_name": "can_vote",
+        "label": "Eligible",
+        "display": {
+          "style": "text"
+        },
+        "description": null,
+        "description_mode": null,
+        "required": false,
+        "visible": true,
+        "visible_conditions": null,
+        "read_only": true,
+        "calculate": "IF($age >= 18, \"yes\", \"no\")",
+        "supporting_image": false,
+        "supporting_image_path": null,
+        "supporting_image_display": null,
+        "key": "df64841e"
+      },
+      {
+        "type": "TextField",
+        "data_name": "count_test_input",
+        "label": "COUNT() test input",
+        "display": "default",
+        "description": null,
+        "description_mode": null,
+        "required": false,
+        "required_conditions": null,
+        "visible": true,
+        "visible_conditions": null,
+        "read_only": false,
+        "read_only_conditions": null,
+        "default_value": null,
+        "pattern": null,
+        "pattern_description": null,
+        "supporting_image": false,
+        "supporting_image_path": null,
+        "supporting_image_display": null,
+        "key": "53cc4c22"
+      },
+      {
+        "type": "CalculatedField",
+        "data_name": "count_test",
+        "label": "COUNT() test",
+        "display": {
+          "style": "text"
+        },
+        "description": null,
+        "description_mode": null,
+        "required": false,
+        "visible": true,
+        "visible_conditions": null,
+        "read_only": true,
+        "calculate": "COUNT(ARRAY($count_test_input))",
+        "supporting_image": false,
+        "supporting_image_path": null,
+        "supporting_image_display": null,
+        "key": "df648483"
+      },
+      {
+        "type": "CalculatedField",
+        "data_name": "calc_test",
+        "label": "calc_test",
+        "display": {
+          "style": "text"
+        },
+        "description": null,
+        "description_mode": null,
+        "required": false,
+        "visible": true,
+        "visible_conditions": null,
+        "read_only": true,
+        "calculate": "SETRESULT($age + 10 >= 30 ? true : false)",
+        "supporting_image": false,
+        "supporting_image_path": null,
+        "supporting_image_display": null,
+        "key": "e7fc4dac"
+      },
+      {
+        "type": "CalculatedField",
+        "data_name": "calc_test_new",
+        "label": "calc_test_new",
+        "display": {
+          "style": "numeric"
+        },
+        "description": null,
+        "description_mode": null,
+        "required": false,
+        "visible": true,
+        "visible_conditions": null,
+        "read_only": true,
+        "calculate": "$age + 88",
+        "supporting_image": false,
+        "supporting_image_path": null,
+        "supporting_image_display": null,
+        "key": "9cd73948"
+      },
+      {
+        "type": "LabelField",
+        "data_name": "photo_consent",
+        "label": "Please be aware that photographs may be taken at this Community Engagement event. By submitting this form, you consent to the use of any photos in which you appear in reports related to the Housing Improvement under PDUNM project and in Build Change marketing materials. You also acknowledge that the information you provide on this form will only be used for the purposes of this project.",
+        "display": "default",
+        "description": null,
+        "description_mode": null,
+        "required": false,
+        "visible": true,
+        "visible_conditions": null,
+        "read_only": true,
+        "default_value": null,
+        "supporting_image": false,
+        "supporting_image_path": null,
+        "supporting_image_display": null,
+        "key": "a7d271b9"
+      },
+      {
+        "type": "Section",
+        "data_name": "section_drill",
+        "label": "Drilldown section test",
+        "display": "drilldown",
+        "description": null,
+        "description_mode": null,
+        "visible": true,
+        "visible_conditions": null,
+        "elements": [
+          {
+            "type": "TextField",
+            "data_name": "comments",
+            "label": "Comments",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "9a264ea0"
+          },
+          {
+            "type": "TextField",
+            "data_name": "comments_additional",
+            "label": "Additional comments",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "9a264ea2"
+          },
+          {
+            "type": "Section",
+            "data_name": "section_drill_bis",
+            "label": "Drilldown section test",
+            "display": "drilldown",
+            "description": null,
+            "description_mode": null,
+            "visible": true,
+            "visible_conditions": null,
+            "elements": [
+              {
+                "type": "TextField",
+                "data_name": "comments_bis",
+                "label": "Comments",
+                "display": "default",
+                "description": null,
+                "description_mode": null,
+                "required": false,
+                "required_conditions": null,
+                "visible": true,
+                "visible_conditions": null,
+                "read_only": false,
+                "read_only_conditions": null,
+                "default_value": null,
+                "pattern": null,
+                "pattern_description": null,
+                "supporting_image": false,
+                "supporting_image_path": null,
+                "supporting_image_display": null,
+                "key": "9a264ea1"
+              }
+            ],
+            "key": "4c958444"
+          }
+        ],
+        "key": "4c958746"
+      },
+      {
+        "type": "TextField",
+        "data_name": "who_voted",
+        "label": "Who voted?",
+        "display": "default",
+        "description": null,
+        "description_mode": null,
+        "required": true,
+        "required_conditions": null,
+        "visible": false,
+        "visible_conditions": {
+          "and": [
+            {
+              "field_id": "can_vote",
+              "operator": "equal_to",
+              "value": "yes"
+            },
+            {
+              "or": [
+                {
+                  "field_id": "age",
+                  "operator": "greater_than",
+                  "value": 20
+                },
+                {
+                  "field_id": "first_name",
+                  "operator": "equal_to",
+                  "value": "Bob"
+                }
+              ]
+            }
+          ]
+        },
+        "read_only": true,
+        "read_only_conditions": null,
+        "default_value": null,
+        "pattern": null,
+        "pattern_description": null,
+        "supporting_image": false,
+        "supporting_image_path": null,
+        "supporting_image_display": null,
+        "key": "fb5c997f"
+      },
+      {
+        "type": "RepeatableSection",
+        "data_name": "evaluation_tests",
+        "label": "Evaluation tests",
+        "display": "drilldown",
+        "description": "This is a repeatable section for evaluation tests",
+        "description_mode": "default",
+        "visible": true,
+        "visible_conditions": null,
+        "location_enabled": true,
+        "location_required": true,
+        "elements": [
+          {
+            "type": "TextField",
+            "data_name": "email",
+            "label": "Email",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+            "pattern_description": "Valid email address format (e.g., user@example.com)",
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "8a8753c7"
+          },
+          {
+            "type": "CalculatedField",
+            "data_name": "age_division",
+            "label": "Age divided by 2",
+            "display": {
+              "style": "numeric"
+            },
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": true,
+            "calculate": "$age/2",
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "6572e98a"
+          },
+          {
+            "type": "NumericField",
+            "data_name": "number",
+            "label": "Number",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "min": null,
+            "max": null,
+            "format": "integer",
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "2c41499d"
+          },
+          {
+            "type": "CalculatedField",
+            "data_name": "age_multiplication_internal",
+            "label": "Age multiplied by 8 and Number added",
+            "display": {
+              "style": "numeric"
+            },
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": true,
+            "calculate": "$age_division*8 + $number",
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "key": "6572e98b"
+          },
+          {
+            "type": "Section",
+            "data_name": "structural_assessment",
+            "label": "Structural assessment, this is a very long label to see what happens when the label is too long.",
+            "display": "drilldown",
+            "description": "This is a test55",
+            "description_mode": "default",
+            "visible": true,
+            "visible_conditions": null,
+            "elements": [
+              {
+                "type": "TextField",
+                "data_name": "address_bis",
+                "label": "Address Bis",
+                "display": "default",
+                "description": null,
+                "description_mode": null,
+                "required": true,
+                "required_conditions": null,
+                "visible": true,
+                "visible_conditions": null,
+                "read_only": false,
+                "read_only_conditions": null,
+                "default_value": null,
+                "pattern": null,
+                "pattern_description": null,
+                "supporting_image": false,
+                "supporting_image_path": null,
+                "supporting_image_display": null,
+                "key": "f3536099"
+              }
+            ],
+            "key": "9a111ea0"
+          },
+          {
+            "type": "Section",
+            "data_name": "non_structural_assessment",
+            "label": "Non-structural assessment",
+            "display": "inline",
+            "description": "This is a test34",
+            "description_mode": "default",
+            "visible": true,
+            "visible_conditions": null,
+            "elements": [
+              {
+                "type": "RepeatableSection",
+                "data_name": "water_sanitation",
+                "label": "Water & Sanitation",
+                "display": "drilldown",
+                "description": "This is a NESTED repeatable section for evaluation tests",
+                "description_mode": "default",
+                "visible": true,
+                "visible_conditions": null,
+                "location_enabled": true,
+                "location_required": true,
+                "elements": [
+                  {
+                    "type": "Section",
+                    "data_name": "first_phase",
+                    "label": "First phase",
+                    "display": "inline",
+                    "description": "This is a test88",
+                    "description_mode": "default",
+                    "visible": true,
+                    "visible_conditions": null,
+                    "elements": [
+                      {
+                        "type": "TextField",
+                        "data_name": "email_test_bis",
+                        "label": "Email Bis",
+                        "display": "default",
+                        "description": null,
+                        "description_mode": null,
+                        "required": true,
+                        "required_conditions": null,
+                        "visible": true,
+                        "visible_conditions": null,
+                        "read_only": false,
+                        "read_only_conditions": null,
+                        "default_value": "stefano@form0.dev",
+                        "pattern": "^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$",
+                        "pattern_description": "Valid email address format (e.g., user@example.com)",
+                        "supporting_image": false,
+                        "supporting_image_path": null,
+                        "supporting_image_display": null,
+                        "key": "f35360a1"
+                      },
+                      {
+                        "type": "NumericField",
+                        "data_name": "random_number",
+                        "label": "Random number",
+                        "display": "default",
+                        "description": null,
+                        "description_mode": null,
+                        "required": true,
+                        "required_conditions": null,
+                        "visible": true,
+                        "visible_conditions": null,
+                        "read_only": false,
+                        "read_only_conditions": null,
+                        "default_value": 10.84,
+                        "min": null,
+                        "max": null,
+                        "format": "float",
+                        "supporting_image": false,
+                        "supporting_image_path": null,
+                        "supporting_image_display": null,
+                        "key": "de7d5586"
+                      },
+                      {
+                        "type": "NumericField",
+                        "data_name": "number_bis",
+                        "label": "Number",
+                        "display": "default",
+                        "description": null,
+                        "description_mode": null,
+                        "required": true,
+                        "required_conditions": null,
+                        "visible": true,
+                        "visible_conditions": null,
+                        "read_only": false,
+                        "read_only_conditions": null,
+                        "default_value": null,
+                        "min": null,
+                        "max": null,
+                        "format": "float",
+                        "supporting_image": false,
+                        "supporting_image_path": null,
+                        "supporting_image_display": null,
+                        "key": "2c41499e"
+                      },
+                      {
+                        "type": "CalculatedField",
+                        "data_name": "calculus",
+                        "label": "Calculus",
+                        "display": {
+                          "style": "numeric"
+                        },
+                        "description": null,
+                        "description_mode": null,
+                        "required": false,
+                        "visible": true,
+                        "visible_conditions": null,
+                        "read_only": true,
+                        "calculate": "$random_number + $number_bis",
+                        "supporting_image": false,
+                        "supporting_image_path": null,
+                        "supporting_image_display": null,
+                        "key": "6572e98e"
+                      }
+                    ],
+                    "key": "adeb3b41"
+                  }
+                ],
+                "key": "43b53a75"
+              }
+            ],
+            "key": "cc77ee19"
+          }
+        ],
+        "key": "9a4d5455"
+      },
+      {
+        "type": "BuildingPlanSection",
+        "key": "d76a8181",
+        "data_name": "building_plan",
+        "label": "Building Plan",
+        "description": null,
+        "description_mode": null,
+        "visible": true,
+        "visible_conditions": null,
+        "read_only": false,
+        "read_only_conditions": null,
+        "node_overrides": {
+          "floors": {
+            "extra_elements": [
+            {
+              "type": "TextField",
+              "key": "c96a8181",
+              "data_name": "floor_reference",
+              "label": "Floor Reference Code",
+              "display": "default",
+              "description": null,
+              "description_mode": null,
+              "required": false,
+              "required_conditions": null,
+              "visible": true,
+              "visible_conditions": null,
+              "read_only": false,
+              "read_only_conditions": null,
+              "default_value": null,
+              "pattern": null,
+              "pattern_description": null,
+              "supporting_image": false,
+              "supporting_image_path": null,
+              "supporting_image_display": null
+            }
+            ]
+          },
+          "columns": {
+            "extra_elements": [
+            {
+              "type": "SingleChoiceField",
+              "key": "e96a8181",
+              "data_name": "column_material",
+              "label": "Column Material",
+              "display": "default",
+              "description": null,
+              "description_mode": null,
+              "required": false,
+              "required_conditions": null,
+              "visible": true,
+              "visible_conditions": null,
+              "read_only": false,
+              "read_only_conditions": null,
+              "default_value": null,
+              "allow_other": true,
+              "supporting_image": false,
+              "supporting_image_path": null,
+              "supporting_image_display": null,
+              "is_searchable": false,
+              "is_searchable_mode": null,
+              "choices": [
+              { "label": "Concrete", "value": "concrete" },
+              { "label": "Steel", "value": "steel" },
+              { "label": "Timber", "value": "timber" }
+              ]
+            }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}
