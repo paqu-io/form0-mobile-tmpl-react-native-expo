@@ -10,6 +10,9 @@ export default function Form0Form({
   mode,
   labelPosition,
   labelWidthPercent,
+  colorMode,
+  customTheme,
+  showPrimaryActionsInViewMode,
   onSubmit,
   ...props
 }) {
@@ -34,6 +37,7 @@ export default function Form0Form({
     return resolved;
   }, []);
 
+  // Resolve effective values from props or config
   const effectiveMode =
     resolveMode(mode) ||
     resolveMode(form0Config.interaction?.defaultMode) ||
@@ -42,6 +46,14 @@ export default function Form0Form({
   const effectiveLabelWidthPercent =
     labelWidthPercent ?? form0Config.layout?.labelWidthPercent ?? 30;
   const keyboardScrollOffset = form0Config.keyboard?.scrollOffset;
+
+  // Theme configuration
+  const effectiveColorMode = colorMode || form0Config.theme?.mode || 'light';
+  const effectiveCustomTheme = customTheme || form0Config.theme?.customTheme || null;
+
+  // Interaction configuration
+  const effectiveShowPrimaryActionsInViewMode =
+    showPrimaryActionsInViewMode ?? form0Config.interaction?.showPrimaryActionsInViewMode ?? true;
 
   return (
     <FormRenderer
@@ -53,6 +65,9 @@ export default function Form0Form({
       labelPosition={effectiveLabelPosition}
       labelWidthPercent={effectiveLabelWidthPercent}
       keyboardScrollOffset={keyboardScrollOffset}
+      colorMode={effectiveColorMode}
+      customTheme={effectiveCustomTheme}
+      showPrimaryActionsInViewMode={effectiveShowPrimaryActionsInViewMode}
       renderers={renderers}
       {...props}
     />
