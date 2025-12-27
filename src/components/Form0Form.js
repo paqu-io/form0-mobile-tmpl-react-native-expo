@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { FormRenderer } from 'form0-react-native';
 import form0Config from '../../form0.config.js';
 import { resolveRenderer } from '../field-renderers/resolver.js';
+import { resolveSupportingImage } from '../supporting-images/index.js';
 
 export default function Form0Form({
   schema,
@@ -13,6 +14,7 @@ export default function Form0Form({
   colorMode,
   customTheme,
   showPrimaryActionsInViewMode,
+  imageResolver,
   onSubmit,
   ...props
 }) {
@@ -39,9 +41,7 @@ export default function Form0Form({
 
   // Resolve effective values from props or config
   const effectiveMode =
-    resolveMode(mode) ||
-    resolveMode(form0Config.interaction?.defaultMode) ||
-    'edit';
+    resolveMode(mode) || resolveMode(form0Config.interaction?.defaultMode) || 'edit';
   const effectiveLabelPosition = labelPosition || form0Config.layout?.labelPosition || 'top';
   const effectiveLabelWidthPercent =
     labelWidthPercent ?? form0Config.layout?.labelWidthPercent ?? 30;
@@ -54,6 +54,9 @@ export default function Form0Form({
   // Interaction configuration
   const effectiveShowPrimaryActionsInViewMode =
     showPrimaryActionsInViewMode ?? form0Config.interaction?.showPrimaryActionsInViewMode ?? true;
+
+  // Image resolver - use provided resolver or default to the app's supporting images
+  const effectiveImageResolver = imageResolver || resolveSupportingImage;
 
   return (
     <FormRenderer
@@ -68,6 +71,7 @@ export default function Form0Form({
       colorMode={effectiveColorMode}
       customTheme={effectiveCustomTheme}
       showPrimaryActionsInViewMode={effectiveShowPrimaryActionsInViewMode}
+      imageResolver={effectiveImageResolver}
       renderers={renderers}
       {...props}
     />

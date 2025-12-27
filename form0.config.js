@@ -21,7 +21,7 @@ export default {
      * - 'side': Labels appear to the left of inputs (horizontal layout)
      * - 'top': Labels appear above inputs (vertical layout)
      */
-    labelPosition: 'side',
+    labelPosition: 'top',
 
     /**
      * Width percentage for labels when labelPosition is 'side'
@@ -46,7 +46,7 @@ export default {
      * - 'dark': Always use dark theme
      * - 'system': Follow system preference
      */
-    mode: 'dark',
+    mode: 'light',
 
     /**
      * Custom theme overrides

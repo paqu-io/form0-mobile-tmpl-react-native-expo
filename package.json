@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "start": "npm run generate-images && expo start",
+    "android": "npm run generate-images && expo start --android",
+    "ios": "npm run generate-images && expo start --ios",
+    "web": "npm run generate-images && expo start --web",
+    "generate-images": "node scripts/generate-image-registry.js"
   },
   "dependencies": {
     "@react-native/virtualized-lists": "^0.83.1",

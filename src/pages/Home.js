@@ -1,22 +1,29 @@
 import React from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useTheme } from 'form0-react-native';
 import { listForms } from '../forms/registry.js';
 import Screen from '../components/Screen.js';
 
 export default function Home({ onSelectForm }) {
+  const { theme, isDark } = useTheme();
   const forms = listForms();
 
   return (
-    <Screen style={{ backgroundColor: '#f6f6f8' }}>
+    <Screen style={{ backgroundColor: theme.color.background }}>
       <ScrollView contentContainerStyle={{ padding: 18 }}>
-        <Text style={{ fontSize: 24, fontWeight: '700', marginBottom: 6 }}>
+        <Text
+          style={{
+            fontSize: 24,
+            fontWeight: '700',
+            marginBottom: 6,
+            color: theme.color.foreground,
+          }}
+        >
           Forms
         </Text>
-        <Text style={{ color: '#666', marginBottom: 16 }}>
-          Pick a form to start.
-        </Text>
+        <Text style={{ color: theme.color.description, marginBottom: 16 }}>Pick a form to start.</Text>
         {forms.length === 0 ? (
-          <Text>No forms registered.</Text>
+          <Text style={{ color: theme.color.foreground }}>No forms registered.</Text>
         ) : (
           forms.map((form) => (
             <Pressable
@@ -26,22 +33,33 @@ export default function Home({ onSelectForm }) {
                 paddingVertical: 14,
                 paddingHorizontal: 16,
                 borderWidth: 1,
-                borderColor: '#e0e0e8',
+                borderColor: theme.color.border,
                 borderRadius: 14,
                 marginBottom: 12,
-                backgroundColor: pressed ? '#ececf2' : '#fff',
+                backgroundColor: pressed
+                  ? isDark
+                    ? theme.color.section
+                    : '#ececf2'
+                  : theme.color.section,
                 shadowColor: '#000',
-                shadowOpacity: 0.05,
+                shadowOpacity: isDark ? 0.2 : 0.05,
                 shadowRadius: 6,
                 shadowOffset: { width: 0, height: 2 },
-                elevation: 1,
+                elevation: isDark ? 2 : 1,
               })}
             >
-              <Text style={{ fontWeight: '600', marginBottom: 4, fontSize: 16 }}>
+              <Text
+                style={{
+                  fontWeight: '600',
+                  marginBottom: 4,
+                  fontSize: 16,
+                  color: theme.color.foreground,
+                }}
+              >
                 {form.title}
               </Text>
               {form.description ? (
-                <Text style={{ color: '#666' }}>{form.description}</Text>
+                <Text style={{ color: theme.color.description }}>{form.description}</Text>
               ) : null}
             </Pressable>
           ))
