@@ -87,7 +87,7 @@ export default {
      * - true: show action buttons in view mode
      * - false: hide action buttons in view mode
      */
-    showPrimaryActionsInViewMode: true,
+    showPrimaryActionsInViewMode: false,
   },
 
   /**

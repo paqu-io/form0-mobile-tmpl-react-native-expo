@@ -1,6 +1,6 @@
 import React from 'react';
-import { Text, View } from 'react-native';
-import { useTheme } from 'form0-react-native';
+import { View } from 'react-native';
+import { Text, useTheme } from 'form0-react-native';
 import Form0Form from '../components/Form0Form.js';
 import { getFormById } from '../forms/registry.js';
 import { useFormSchema } from '../forms/use-form-schema.js';
