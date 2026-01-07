@@ -13,7 +13,7 @@ export default function Home({ onSelectForm }) {
       <ScrollView contentContainerStyle={{ padding: 18 }}>
         <Text
           style={{
-            fontSize: 24,
+            fontSize: theme.fontSize.xxl,
             fontWeight: '700',
             marginBottom: 6,
             color: theme.color.foreground,
@@ -52,7 +52,7 @@ export default function Home({ onSelectForm }) {
                 style={{
                   fontWeight: '600',
                   marginBottom: 4,
-                  fontSize: 16,
+                  fontSize: theme.fontSize.md,
                   color: theme.color.foreground,
                 }}
               >
