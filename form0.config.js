@@ -119,4 +119,53 @@ export default {
     // DateField: 'date-field-custom',
     // TextField: 'text-field-custom',
   },
+
+  /**
+   * Output Format
+   *
+   * Controls how form data is serialized on submission.
+   */
+  output: {
+    /**
+     * Use schema keys instead of data_name values in output
+     * @type {boolean}
+     * - false: Use field data_name values (default, human-readable)
+     * - true: Use generated or explicit key values
+     */
+    useKeys: false,
+  },
+
+  /**
+   * Local Storage (SQLite)
+   *
+   * Offline-first storage for React Native. Enabled by default.
+   */
+  storage: {
+    /**
+     * Toggle local persistence (set to false to disable)
+     */
+    enabled: true,
+
+    /**
+     * SQLite database filename (stored in app sandbox)
+     */
+    databaseName: 'form0.db',
+
+    /**
+     * Main submissions table name
+     */
+    tableName: 'form0_submissions',
+
+    /**
+     * Enable verbose logging for local storage
+     */
+    debug: false,
+  },
+
+  devServer: {
+    type: 'app',
+    command: 'npx expo start --tunnel -c',
+    submitToConnector: false,
+    apiBaseUrl: '',
+  },
 };
