@@ -1,4 +1,4 @@
-import * as SQLite from 'expo-sqlite';
+import { openDatabaseAsync } from 'expo-sqlite';
 
 const DEFAULT_DB_NAME = 'form0.db';
 const DEFAULT_TABLE_NAME = 'form0_submissions';
@@ -28,22 +28,33 @@ function resolveStorageConfig(config = {}) {
   };
 }
 
-function ensureDatabase(config) {
+function normalizeLimit(limit, fallback) {
+  if (typeof limit !== 'number' || !Number.isFinite(limit)) {
+    return fallback;
+  }
+  const rounded = Math.floor(limit);
+  if (rounded <= 0) {
+    return fallback;
+  }
+  return Math.min(rounded, 50);
+}
+
+async function ensureDatabase(config) {
   const resolved = resolveStorageConfig(config);
 
   if (state.db && state.config?.databaseName === resolved.databaseName) {
     return state.db;
   }
 
-  state.db = SQLite.openDatabase(resolved.databaseName);
+  state.db = await openDatabaseAsync(resolved.databaseName);
   state.config = resolved;
   state.initPromise = null;
   return state.db;
 }
 
-function ensureSchema(config) {
+async function ensureSchema(config) {
   const resolved = resolveStorageConfig(config);
-  const db = ensureDatabase(resolved);
+  const db = await ensureDatabase(resolved);
 
   if (state.initPromise) {
     return state.initPromise;
@@ -51,40 +62,37 @@ function ensureSchema(config) {
 
   const tableName = resolved.tableName;
 
-  state.initPromise = new Promise((resolve, reject) => {
-    db.transaction(
-      (tx) => {
-        tx.executeSql(
-          `CREATE TABLE IF NOT EXISTS ${tableName} (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            record_id TEXT,
-            changeset_id TEXT,
-            form_id TEXT,
-            status TEXT,
-            version INTEGER,
-            draft INTEGER,
-            created_at TEXT,
-            updated_at TEXT,
-            created_at_client TEXT,
-            updated_at_client TEXT,
-            created_at_server TEXT,
-            updated_at_server TEXT,
-            record_json TEXT NOT NULL,
-            created_at_db TEXT DEFAULT CURRENT_TIMESTAMP
-          );`
-        );
+  state.initPromise = (async () => {
+    try {
+      await db.execAsync(
+        `CREATE TABLE IF NOT EXISTS ${tableName} (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          record_id TEXT,
+          changeset_id TEXT,
+          form_id TEXT,
+          status TEXT,
+          version INTEGER,
+          draft INTEGER,
+          created_at TEXT,
+          updated_at TEXT,
+          created_at_client TEXT,
+          updated_at_client TEXT,
+          created_at_server TEXT,
+          updated_at_server TEXT,
+          record_json TEXT NOT NULL,
+          created_at_db TEXT DEFAULT CURRENT_TIMESTAMP
+        );`
+      );
 
-        tx.executeSql(
-          `CREATE INDEX IF NOT EXISTS idx_${tableName}_record_id ON ${tableName} (record_id);`
-        );
-      },
-      (error) => {
-        state.initPromise = null;
-        reject(error);
-      },
-      () => resolve(db)
-    );
-  });
+      await db.execAsync(
+        `CREATE INDEX IF NOT EXISTS idx_${tableName}_record_id ON ${tableName} (record_id);`
+      );
+      return db;
+    } catch (error) {
+      state.initPromise = null;
+      throw error;
+    }
+  })();
 
   return state.initPromise;
 }
@@ -112,41 +120,98 @@ export async function storeStructuredRecord(record, options = {}) {
 
   const tableName = config.tableName;
 
-  return await new Promise((resolve, reject) => {
-    db.transaction(
-      (tx) => {
-        tx.executeSql(
-          `INSERT INTO ${tableName} (
-            record_id,
-            changeset_id,
-            form_id,
-            status,
-            version,
-            draft,
-            created_at,
-            updated_at,
-            created_at_client,
-            updated_at_client,
-            created_at_server,
-            updated_at_server,
-            record_json
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-          values,
-          (_tx, result) => {
-            resolve({
-              insertId: result.insertId,
-              recordId: record.id || null,
-            });
-          },
-          (_tx, error) => {
-            reject(error);
-            return true;
-          }
-        );
-      },
-      (error) => reject(error)
-    );
-  });
+  const result = await db.runAsync(
+    `INSERT INTO ${tableName} (
+      record_id,
+      changeset_id,
+      form_id,
+      status,
+      version,
+      draft,
+      created_at,
+      updated_at,
+      created_at_client,
+      updated_at_client,
+      created_at_server,
+      updated_at_server,
+      record_json
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+    ...values
+  );
+
+  return {
+    insertId: result.lastInsertRowId,
+    recordId: record.id || null,
+  };
+}
+
+export async function getRecentStoredRecords(options = {}) {
+  const config = resolveStorageConfig(options.config || {});
+  const limit = normalizeLimit(options.limit, 10);
+  const db = await ensureSchema(config);
+  const tableName = config.tableName;
+
+  const rows = await db.getAllAsync(
+    `SELECT
+      id,
+      record_id,
+      changeset_id,
+      form_id,
+      status,
+      version,
+      draft,
+      created_at,
+      updated_at,
+      created_at_client,
+      updated_at_client,
+      created_at_server,
+      updated_at_server,
+      record_json,
+      created_at_db
+    FROM ${tableName}
+    ORDER BY id DESC
+    LIMIT ${limit};`
+  );
+
+  return rows;
+}
+
+export async function getAllStoredRecords(options = {}) {
+  const config = resolveStorageConfig(options.config || {});
+  const db = await ensureSchema(config);
+  const tableName = config.tableName;
+
+  return await db.getAllAsync(
+    `SELECT
+      id,
+      record_id,
+      changeset_id,
+      form_id,
+      status,
+      version,
+      draft,
+      created_at,
+      updated_at,
+      created_at_client,
+      updated_at_client,
+      created_at_server,
+      updated_at_server,
+      record_json,
+      created_at_db
+    FROM ${tableName}
+    ORDER BY id DESC;`
+  );
+}
+
+export async function clearStoredRecords(options = {}) {
+  const config = resolveStorageConfig(options.config || {});
+  const db = await ensureSchema(config);
+  const tableName = config.tableName;
+  const result = await db.runAsync(`DELETE FROM ${tableName};`);
+
+  return {
+    changes: result.changes,
+  };
 }
 
 export function isLocalStorageEnabled(config = {}) {

@@ -159,7 +159,7 @@ export default {
     /**
      * Enable verbose logging for local storage
      */
-    debug: false,
+    debug: true,
   },
 
   devServer: {
