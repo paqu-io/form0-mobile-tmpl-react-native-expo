@@ -2,6 +2,7 @@
   "name": "form0-mobile-test1",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "npm run generate-images && expo start",
     "android": "npm run generate-images && expo start --android",
