@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "form0-mobile-test1",
-    "slug": "form0-mobile-test1",
+    "name": "form0-mobile-tmpl-react-native-expo",
+    "slug": "form0-mobile-tmpl-react-native-expo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

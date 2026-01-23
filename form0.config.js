@@ -5,7 +5,7 @@
  * Settings defined here are used as defaults throughout the application.
  *
  * Note: This config format is designed to be compatible with form0-cli and mirrors
- * the web configuration (form0-test1/form0.config.js) where applicable.
+ * the web configuration (form0-web-tmpl-react-vite/form0.config.js) where applicable.
  */
 
 export default {
