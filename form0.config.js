@@ -164,7 +164,7 @@ export default {
 
   devServer: {
     type: 'app',
-    command: 'npx expo start --tunnel -c',
+    command: 'TMPDIR=$HOME/.cache npx expo start --tunnel -c',
     submitToConnector: false,
     apiBaseUrl: '',
   },
