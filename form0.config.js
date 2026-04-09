@@ -164,7 +164,11 @@ export default {
 
   devServer: {
     type: 'app',
-    command: 'TMPDIR=$HOME/.cache npx expo start --tunnel -c',
+    provider: 'expo',
+    host: 'lan',
+    port: 8081,
+    clearCache: true,
+    publicUrlEnv: 'FORM0_APP_PUBLIC_URL',
     submitToConnector: false,
     apiBaseUrl: '',
   },
