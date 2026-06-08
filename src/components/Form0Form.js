@@ -134,11 +134,14 @@ export default function Form0Form({
   );
 
   const handleSubmit = useCallback(
-    (values, meta) => {
-      defaultStructuredSubmit(values, meta);
+    async (values, meta) => {
+      await defaultStructuredSubmit(values, meta);
+
       if (typeof onSubmit === 'function') {
-        onSubmit(values, meta);
+        return onSubmit(values, meta);
       }
+
+      return undefined;
     },
     [defaultStructuredSubmit, onSubmit]
   );
