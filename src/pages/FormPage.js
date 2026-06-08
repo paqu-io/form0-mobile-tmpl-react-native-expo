@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Pressable, View } from 'react-native';
 import { Text, useTheme } from 'form0-react-native';
 import Form0Form from '../components/Form0Form.js';
@@ -18,6 +18,50 @@ export default function FormPage({ formId, onBack }) {
   const { schema, loading, error } = useFormSchema(formDefinition?.id);
   const storageConfig = form0Config.storage || {};
   const showStorageDebug = storageConfig?.debug === true;
+
+  const handleSubmit = useCallback((values) => {
+    console.log('📤 Submitted:', values);
+  }, []);
+
+  const handleRequestClose = useCallback(
+    ({ reason }) => {
+      console.log('📋 Form close requested:', reason);
+      onBack();
+    },
+    [onBack]
+  );
+
+  const handleLogLocalRecords = useCallback(async () => {
+    if (!isLocalStorageEnabled(storageConfig)) {
+      console.info('[form0] Local storage disabled; nothing to show.');
+      return;
+    }
+
+    try {
+      const rows = await getAllStoredRecords({
+        config: storageConfig,
+      });
+      console.info('[form0] Local records:', rows);
+    } catch (error) {
+      console.error('[form0] Failed to read local records.', error);
+    }
+  }, [storageConfig]);
+
+  const handleClearLocalRecords = useCallback(async () => {
+    if (!isLocalStorageEnabled(storageConfig)) {
+      console.info('[form0] Local storage disabled; nothing to clear.');
+      return;
+    }
+
+    try {
+      const result = await clearStoredRecords({
+        config: storageConfig,
+      });
+      console.info('[form0] Cleared local records.', result);
+    } catch (error) {
+      console.error('[form0] Failed to clear local records.', error);
+    }
+  }, [storageConfig]);
 
   const debugButtonStyle = ({ pressed }) => ({
     paddingVertical: 10,
@@ -65,52 +109,17 @@ export default function FormPage({ formId, onBack }) {
           <Form0Form
             schema={schema}
             initialValues={formDefinition.initialValues}
-            onSubmit={(values) => console.log('📤 Submitted:', values)}
-            onRequestClose={({ reason }) => {
-              console.log('📋 Form close requested:', reason);
-              onBack();
-            }}
+            onSubmit={handleSubmit}
+            onRequestClose={handleRequestClose}
           />
           {showStorageDebug ? (
             <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
-              <Pressable
-                onPress={async () => {
-                  if (!isLocalStorageEnabled(storageConfig)) {
-                    console.info('[form0] Local storage disabled; nothing to show.');
-                    return;
-                  }
-                  try {
-                    const rows = await getAllStoredRecords({
-                      config: storageConfig,
-                    });
-                    console.info('[form0] Local records:', rows);
-                  } catch (error) {
-                    console.error('[form0] Failed to read local records.', error);
-                  }
-                }}
-                style={debugButtonStyle}
-              >
+              <Pressable onPress={handleLogLocalRecords} style={debugButtonStyle}>
                 <Text style={{ color: theme.color.foreground, fontWeight: '600' }}>
                   Debug: Log Local Records
                 </Text>
               </Pressable>
-              <Pressable
-                onPress={async () => {
-                  if (!isLocalStorageEnabled(storageConfig)) {
-                    console.info('[form0] Local storage disabled; nothing to clear.');
-                    return;
-                  }
-                  try {
-                    const result = await clearStoredRecords({
-                      config: storageConfig,
-                    });
-                    console.info('[form0] Cleared local records.', result);
-                  } catch (error) {
-                    console.error('[form0] Failed to clear local records.', error);
-                  }
-                }}
-                style={debugButtonStyle}
-              >
+              <Pressable onPress={handleClearLocalRecords} style={debugButtonStyle}>
                 <Text style={{ color: theme.color.foreground, fontWeight: '600' }}>
                   Debug: Clear Local Records
                 </Text>
