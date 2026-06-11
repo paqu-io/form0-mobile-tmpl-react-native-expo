@@ -1,21 +1,29 @@
 import React, { useCallback, useMemo } from 'react';
 import { FormRenderer } from 'form0-react-native';
-import { createStructuredRecord, flattenFields } from 'form0-core';
 import form0Config from '../../form0.config.js';
 import { resolveRenderer } from '../field-renderers/resolver.js';
 import { resolveSupportingImage } from '../supporting-images/index.js';
 import {
   ensureRecordOptionIds,
-  injectMediaFieldUUIDs,
   regenerateRepeatableRecordIds,
 } from '../lib/record-utils.js';
 import { isLocalStorageEnabled, storeStructuredRecord } from '../lib/local-record-store.js';
 
 const FIELD_KEY_MODE = form0Config.output?.useKeys ? 'prefer-key' : 'data-name';
+const cloneRecord = (value) => {
+  if (value == null) {
+    return value;
+  }
+  if (typeof structuredClone === 'function') {
+    return structuredClone(value);
+  }
+  return JSON.parse(JSON.stringify(value));
+};
 
 export default function Form0Form({
   schema,
   initialValues,
+  initialSnapshot,
   overrideValues,
   mode,
   labelPosition,
@@ -25,6 +33,7 @@ export default function Form0Form({
   showPrimaryActionsInViewMode,
   imageResolver,
   onSubmit,
+  onSnapshotChange,
   ...props
 }) {
   const resolveMode = (value) => {
@@ -49,7 +58,6 @@ export default function Form0Form({
   }, []);
 
   const schemaElements = useMemo(() => schema?.form?.elements ?? [], [schema]);
-  const flattenedFields = useMemo(() => flattenFields(schemaElements), [schemaElements]);
 
   // Resolve effective values from props or config
   const effectiveMode =
@@ -73,7 +81,7 @@ export default function Form0Form({
   const persistEnabled = isLocalStorageEnabled(form0Config.storage || {});
 
   const defaultStructuredSubmit = useCallback(
-    async (values, meta = {}) => {
+    async (structuredRecord, meta = {}) => {
       if (!persistEnabled) {
         if (form0Config.storage?.debug) {
           console.info('[form0] Local storage disabled; skipping SQLite save.');
@@ -83,15 +91,23 @@ export default function Form0Form({
 
       if (!schema?.form) {
         console.info('[form0] Schema not available; storing raw values only.');
-        console.log(values);
+        console.log(structuredRecord);
         return;
       }
 
       try {
-        const statusFieldName = schema.form.status_field?.data_name ?? null;
-        const valuesWithMediaIds = injectMediaFieldUUIDs(values, flattenedFields);
-
+        const baseRecord =
+          structuredRecord &&
+          typeof structuredRecord === 'object' &&
+          !Array.isArray(structuredRecord)
+            ? cloneRecord(structuredRecord)
+            : null;
+        if (!baseRecord) {
+          throw new Error('form0-react-native onSubmit did not return a structured record.');
+        }
         const recordOptions = ensureRecordOptionIds({
+          mainRecordId: baseRecord.id || baseRecord.record_id || null,
+          changeset_id: baseRecord.changeset_id || null,
           fieldKeyMode: FIELD_KEY_MODE,
           originalElements: schemaElements,
           title_field: schema.form.title_field || null,
@@ -99,46 +115,49 @@ export default function Form0Form({
           form_id: schema.form.id || null,
         });
 
-        if (statusFieldName) {
-          recordOptions['@status'] = valuesWithMediaIds[statusFieldName] ?? null;
-          delete valuesWithMediaIds[statusFieldName];
+        const preparedRecord = {
+          ...baseRecord,
+          id: baseRecord.id || recordOptions.mainRecordId,
+          changeset_id: baseRecord.changeset_id || recordOptions.changeset_id,
+          form_id: baseRecord.form_id || schema.form.id || null,
+        };
+
+        if (!preparedRecord.record_id) {
+          preparedRecord.record_id = preparedRecord.id || null;
         }
 
-        const structuredRecord = createStructuredRecord(
-          {
-            values: valuesWithMediaIds,
-            repeatable: meta?.repeatable || {},
-          },
-          flattenedFields,
-          recordOptions
-        );
+        regenerateRepeatableRecordIds(preparedRecord);
 
-        regenerateRepeatableRecordIds(structuredRecord);
-
-        const result = await storeStructuredRecord(structuredRecord, {
+        const result = await storeStructuredRecord(preparedRecord, {
           config: form0Config.storage || {},
         });
 
         if (form0Config.storage?.debug) {
           console.info('[form0] Stored record locally:', result);
-          console.log(structuredRecord);
+          console.log(preparedRecord);
+          if (meta?.rawValues) {
+            console.log('📤 Submitted raw values:', meta.rawValues);
+          }
         }
       } catch (error) {
         console.error('[form0] Failed to store record locally.', error);
         if (form0Config.storage?.debug) {
-          console.log('[form0] Raw values:', values);
+          console.log('[form0] Structured record:', structuredRecord);
+          if (meta?.rawValues) {
+            console.log('[form0] Raw values:', meta.rawValues);
+          }
         }
       }
     },
-    [persistEnabled, schema, schemaElements, flattenedFields]
+    [persistEnabled, schema, schemaElements]
   );
 
   const handleSubmit = useCallback(
-    async (values, meta) => {
-      await defaultStructuredSubmit(values, meta);
+    async (structuredRecord, meta) => {
+      await defaultStructuredSubmit(structuredRecord, meta);
 
       if (typeof onSubmit === 'function') {
-        return onSubmit(values, meta);
+        return onSubmit(structuredRecord, meta);
       }
 
       return undefined;
@@ -150,8 +169,11 @@ export default function Form0Form({
     <FormRenderer
       schema={schema}
       initialValues={initialValues}
+      initialSnapshot={initialSnapshot}
       overrideValues={overrideValues}
       onSubmit={handleSubmit}
+      onSnapshotChange={onSnapshotChange}
+      fieldKeyMode={FIELD_KEY_MODE}
       mode={effectiveMode}
       labelPosition={effectiveLabelPosition}
       labelWidthPercent={effectiveLabelWidthPercent}
