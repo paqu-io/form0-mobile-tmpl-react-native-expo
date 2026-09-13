@@ -23,7 +23,6 @@ if (watchFolders.length > 0) {
       react: path.resolve(projectRoot, 'node_modules/react'),
       'react-native': path.resolve(projectRoot, 'node_modules/react-native'),
     },
-    disableHierarchicalLookup: true,
     nodeModulesPaths: [path.resolve(projectRoot, 'node_modules')],
   };
 }

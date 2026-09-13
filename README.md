@@ -31,7 +31,9 @@ npm install
 npm start
 ```
 
-Use Expo Go or a compatible development build to open the application on a device or emulator.
+Use an Expo development build to open the application on a device or emulator. Expo Go remains a
+convenient learning and evaluation client when a compatible SDK build is available for your target
+platform, but development builds are the recommended environment for production-oriented work.
 
 You can also create a repository from this starter with GitHub's **Use this template** button. The
 CLI remains the recommended route because it guides project selection and local setup.
@@ -124,9 +126,10 @@ services through an application API designed for mobile clients.
 
 ## ✅ Requirements
 
-- Node.js 22 or newer
-- A supported Expo development environment
-- Android Studio, Xcode, Expo Go, or another compatible target environment
+- Node.js 22.13 or newer
+- Android 7 or newer, or iOS 16.4 or newer
+- Xcode 26.4 or newer for local iOS builds
+- A supported Expo development environment; use a development build for production-oriented work
 
 ## 📚 Documentation
 
