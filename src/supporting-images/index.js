@@ -8,7 +8,6 @@
  * 1. Add your image files to: assets/supporting-images/
  * 2. Run: npm run generate-images
  *
- * Generated: 2025-12-27T16:33:41.210Z
  * Images found: 2
  */
 

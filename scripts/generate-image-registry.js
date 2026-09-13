@@ -7,18 +7,38 @@
  *
  * Usage:
  *   node scripts/generate-image-registry.js
+ *   node scripts/generate-image-registry.js --check
  *   # or
  *   npm run generate-images
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const IMAGES_DIR = path.join(__dirname, '..', 'assets', 'supporting-images');
-const OUTPUT_FILE = path.join(__dirname, '..', 'src', 'supporting-images', 'index.js');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const IMAGES_DIR = path.join(__dirname, "..", "assets", "supporting-images");
+const OUTPUT_FILE = path.join(
+  __dirname,
+  "..",
+  "src",
+  "supporting-images",
+  "index.js",
+);
+const CHECK_ONLY = process.argv.includes("--check");
 
 // Supported image extensions
-const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+const IMAGE_EXTENSIONS = [
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".gif",
+  ".webp",
+  ".svg",
+  ".bmp",
+];
 
 function generateRegistry() {
   // Check if images directory exists
@@ -37,8 +57,11 @@ function generateRegistry() {
 
   // Generate require statements
   const requireStatements = files
-    .map((file) => `  '${file}': require('../../assets/supporting-images/${file}'),`)
-    .join('\n');
+    .map(
+      (file) =>
+        `  '${file}': require('../../assets/supporting-images/${file}'),`,
+    )
+    .join("\n");
 
   // Generate the registry file content
   const content = `/**
@@ -51,7 +74,6 @@ function generateRegistry() {
  * 1. Add your image files to: assets/supporting-images/
  * 2. Run: npm run generate-images
  *
- * Generated: ${new Date().toISOString()}
  * Images found: ${files.length}
  */
 
@@ -99,6 +121,21 @@ export function getRegisteredImages() {
 export default supportingImages;
 `;
 
+  if (CHECK_ONLY) {
+    const current = fs.existsSync(OUTPUT_FILE)
+      ? fs.readFileSync(OUTPUT_FILE, "utf8")
+      : null;
+    if (current !== content) {
+      console.error(
+        "Supporting image registry is out of date. Run npm run generate-images.",
+      );
+      process.exitCode = 1;
+      return;
+    }
+    console.log(`✅ Supporting image registry is up to date: ${OUTPUT_FILE}`);
+    return;
+  }
+
   // Ensure output directory exists
   const outputDir = path.dirname(OUTPUT_FILE);
   if (!fs.existsSync(outputDir)) {
@@ -106,14 +143,16 @@ export default supportingImages;
   }
 
   // Write the file
-  fs.writeFileSync(OUTPUT_FILE, content, 'utf-8');
+  fs.writeFileSync(OUTPUT_FILE, content, "utf-8");
 
   console.log(`✅ Generated registry at: ${OUTPUT_FILE}`);
   if (files.length > 0) {
-    console.log('\nRegistered images:');
+    console.log("\nRegistered images:");
     files.forEach((file) => console.log(`  - ${file}`));
   } else {
-    console.log('\n⚠️  No images found. Add images to assets/supporting-images/');
+    console.log(
+      "\n⚠️  No images found. Add images to assets/supporting-images/",
+    );
   }
 }
 
