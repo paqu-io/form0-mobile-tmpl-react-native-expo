@@ -38,5 +38,5 @@ jobs:
       - name: Run repository checks
         run: npm run check
 
-      - name: Audit production dependencies
+      - name: Audit production dependencies for critical vulnerabilities
         run: npm run security:audit:prod

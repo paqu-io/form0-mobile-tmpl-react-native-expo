@@ -27,11 +27,13 @@
     "web": "npm run generate-images && expo start --web",
     "generate-images": "node scripts/generate-image-registry.js",
     "check:generated": "node scripts/generate-image-registry.js --check",
-    "security:audit:prod": "npm audit --omit=dev --omit=peer --audit-level=high",
-    "check": "npm run check:generated"
+    "check:expo": "expo install --check",
+    "check:bundle": "expo export --platform all --output-dir dist",
+    "security:audit:prod": "npm audit --omit=dev --omit=peer --audit-level=critical",
+    "check": "npm run check:generated && npm run check:expo && npm run check:bundle"
   },
   "dependencies": {
-    "@react-native/virtualized-lists": "^0.83.1",
+    "@react-native/virtualized-lists": "0.81.5",
     "expo": "~54.0.33",
     "expo-asset": "~12.0.12",
     "expo-font": "~14.0.10",

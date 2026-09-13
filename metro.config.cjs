@@ -14,18 +14,18 @@ const watchFolders = [
 
 if (watchFolders.length > 0) {
   config.watchFolders = watchFolders;
-}
 
-config.resolver = {
-  ...config.resolver,
-  // Always resolve react/react-native from the app to avoid duplicate copies.
-  extraNodeModules: {
-    react: path.resolve(projectRoot, 'node_modules/react'),
-    'react-native': path.resolve(projectRoot, 'node_modules/react-native'),
-  },
-  // Prevent Metro from walking up into sibling package node_modules.
-  disableHierarchicalLookup: true,
-  nodeModulesPaths: [path.resolve(projectRoot, 'node_modules')],
-};
+  // Keep linked sibling packages on the app's React and React Native instances.
+  // Standalone projects retain Expo's default resolver configuration.
+  config.resolver = {
+    ...config.resolver,
+    extraNodeModules: {
+      react: path.resolve(projectRoot, 'node_modules/react'),
+      'react-native': path.resolve(projectRoot, 'node_modules/react-native'),
+    },
+    disableHierarchicalLookup: true,
+    nodeModulesPaths: [path.resolve(projectRoot, 'node_modules')],
+  };
+}
 
 module.exports = config;
