@@ -38,5 +38,8 @@ jobs:
       - name: Run repository checks
         run: npm run check
 
-      - name: Audit production dependencies for critical vulnerabilities
+      - name: Test temporary audit policy safeguards
+        run: npm run security:audit:policy:test
+
+      - name: Audit production dependencies for high and critical vulnerabilities
         run: npm run security:audit:prod
