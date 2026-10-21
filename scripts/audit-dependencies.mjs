@@ -12,7 +12,7 @@ const levels = ['info', 'low', 'moderate', 'high', 'critical'];
 const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const isBlocking = (severity) => ['high', 'critical'].includes(severity);
 const rootRanges = {
-  expo: '~57.0.27',
+  expo: '~57.0.30',
   'react-native': '0.86.3',
   '@react-native/virtualized-lists': '0.86.3',
 };
@@ -25,14 +25,14 @@ function reviewed(name, version, via, locations = [`node_modules/${name}`]) {
   return { nodes, via };
 }
 
-// Application-owned Node tooling graph reviewed on 8 October. This is NOT the
-// binding library's peer-only waiver. New paths, edges or versions require review.
+// Application-owned Node tooling graph re-reviewed on 21 October after the SDK 57 patch update.
+// This is NOT the binding library's peer-only waiver. New paths, edges or versions require review.
 const graph = new Map([
   [
     '@expo/cli',
     reviewed(
       '@expo/cli',
-      '57.0.28',
+      '57.0.31',
       [
         '@expo/code-signing-certificates',
         '@expo/config',
@@ -79,7 +79,7 @@ const graph = new Map([
   ['braces', reviewed('braces', '3.0.3', [])],
   [
     'expo',
-    reviewed('expo', '57.0.27', [
+    reviewed('expo', '57.0.30', [
       '@expo/cli',
       '@expo/config',
       '@expo/config-plugins',
