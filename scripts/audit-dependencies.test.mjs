@@ -4,7 +4,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { evaluateAudit } from './audit-dependencies.mjs';
 
-const now = Date.parse('2026-10-08T18:00:00Z');
+const now = Date.parse('2026-10-21T12:00:00Z');
 const expiry = Date.parse('2026-11-07T00:00:00Z');
 const bracesUrl = 'https://github.com/advisories/GHSA-vfj7-8cjw-p6xm';
 const forgeUrl = 'https://github.com/advisories/GHSA-86w9-cpqp-85rv';
@@ -26,12 +26,12 @@ function recount(report) {
   };
 }
 
-// Independently characterized from the 8 October real production report, not policy constants.
+// Independently characterized from the 21 October real production report, not policy constants.
 function fixture() {
   const definitions = [
     [
       '@expo/cli',
-      '57.0.28',
+      '57.0.31',
       [
         '@expo/code-signing-certificates',
         '@expo/config',
@@ -61,7 +61,7 @@ function fixture() {
     ['braces', '3.0.3', [advisory('braces', bracesUrl)]],
     [
       'expo',
-      '57.0.27',
+      '57.0.30',
       [
         '@expo/cli',
         '@expo/config',
@@ -84,16 +84,16 @@ function fixture() {
     ],
     ['@expo/config', '57.0.10', ['@expo/config-plugins'], undefined, 'moderate'],
     ['@expo/config-plugins', '57.0.10', ['xcode'], undefined, 'moderate'],
-    ['@expo/inline-modules', '0.1.7', ['@expo/config-plugins'], undefined, 'moderate'],
-    ['@expo/local-build-cache-provider', '57.0.8', ['@expo/config'], undefined, 'moderate'],
+    ['@expo/inline-modules', '0.1.8', ['@expo/config-plugins'], undefined, 'moderate'],
+    ['@expo/local-build-cache-provider', '57.0.9', ['@expo/config'], undefined, 'moderate'],
     [
       '@expo/prebuild-config',
-      '57.0.17',
+      '57.0.19',
       ['@expo/config', '@expo/config-plugins'],
       undefined,
       'moderate',
     ],
-    ['expo-splash-screen', '57.0.9', ['@expo/config-plugins'], undefined, 'moderate'],
+    ['expo-splash-screen', '57.0.10', ['@expo/config-plugins'], undefined, 'moderate'],
     [
       'uuid',
       '7.0.3',
@@ -109,7 +109,7 @@ function fixture() {
     packages: {
       '': {
         dependencies: {
-          expo: '~57.0.27',
+          expo: '~57.0.30',
           'react-native': '0.86.3',
           '@react-native/virtualized-lists': '0.86.3',
         },
@@ -143,6 +143,16 @@ test('accepts the reviewed production graph, including both Metro paths and cycl
   assert.equal(result.accepted.length, 15);
   assert.deepEqual(result.blocked, []);
   assert.equal(result.expired, false);
+});
+
+test('superseded Expo patch versions are outside the current reviewed graph', () => {
+  const input = fixture();
+  input.lock.packages[''].dependencies.expo = '~57.0.27';
+  input.lock.packages['node_modules/expo'].version = '57.0.27';
+  input.lock.packages['node_modules/expo/node_modules/@expo/cli'].version = '57.0.28';
+  const result = evaluate(input);
+  assert.ok(result.blocked.includes('expo'));
+  assert.ok(result.blocked.includes('@expo/cli'));
 });
 
 test('expiry is exclusive, cannot be extended, and blocks unresolved findings', () => {
