@@ -31,17 +31,8 @@ function fixture() {
   const definitions = [
     [
       '@expo/cli',
-      '57.0.31',
-      [
-        '@expo/code-signing-certificates',
-        '@expo/config',
-        '@expo/config-plugins',
-        '@expo/inline-modules',
-        '@expo/metro',
-        '@expo/metro-config',
-        '@expo/prebuild-config',
-        'node-forge',
-      ],
+      '57.0.32',
+      ['@expo/code-signing-certificates', '@expo/metro', '@expo/metro-config', 'node-forge'],
       ['node_modules/expo/node_modules/@expo/cli'],
     ],
     ['@expo/code-signing-certificates', '0.0.6', ['node-forge']],
@@ -53,24 +44,13 @@ function fixture() {
     [
       '@expo/metro-config',
       '57.0.13',
-      ['@expo/config', '@expo/metro'],
+      ['@expo/metro'],
       ['node_modules/expo/node_modules/@expo/metro-config'],
     ],
     ['@react-native/community-cli-plugin', '0.86.3', ['metro', 'metro-config']],
     ['@react-native/virtualized-lists', '0.86.3', ['react-native']],
     ['braces', '3.0.3', [advisory('braces', bracesUrl)]],
-    [
-      'expo',
-      '57.0.30',
-      [
-        '@expo/cli',
-        '@expo/config',
-        '@expo/config-plugins',
-        '@expo/local-build-cache-provider',
-        '@expo/metro',
-        '@expo/metro-config',
-      ],
-    ],
+    ['expo', '57.0.31', ['@expo/cli', '@expo/metro', '@expo/metro-config']],
     ['metro', '0.84.6', ['metro-config', 'metro-file-map', 'metro-transform-worker']],
     ['metro-config', '0.84.6', ['metro']],
     ['metro-file-map', '0.84.6', ['micromatch']],
@@ -82,26 +62,6 @@ function fixture() {
       '0.86.3',
       ['@react-native/community-cli-plugin', '@react-native/virtualized-lists'],
     ],
-    ['@expo/config', '57.0.10', ['@expo/config-plugins'], undefined, 'moderate'],
-    ['@expo/config-plugins', '57.0.10', ['xcode'], undefined, 'moderate'],
-    ['@expo/inline-modules', '0.1.8', ['@expo/config-plugins'], undefined, 'moderate'],
-    ['@expo/local-build-cache-provider', '57.0.9', ['@expo/config'], undefined, 'moderate'],
-    [
-      '@expo/prebuild-config',
-      '57.0.19',
-      ['@expo/config', '@expo/config-plugins'],
-      undefined,
-      'moderate',
-    ],
-    ['expo-splash-screen', '57.0.10', ['@expo/config-plugins'], undefined, 'moderate'],
-    [
-      'uuid',
-      '7.0.3',
-      [advisory('uuid', 'https://github.com/advisories/GHSA-w5hq-g745-h8pq', 'moderate')],
-      undefined,
-      'moderate',
-    ],
-    ['xcode', '3.0.1', ['uuid'], undefined, 'moderate'],
   ];
   const report = { auditReportVersion: 2, vulnerabilities: {}, metadata: {} };
   const lock = {
@@ -109,7 +69,7 @@ function fixture() {
     packages: {
       '': {
         dependencies: {
-          expo: '~57.0.30',
+          expo: '~57.0.31',
           'react-native': '0.86.3',
           '@react-native/virtualized-lists': '0.86.3',
         },
@@ -131,6 +91,29 @@ function fixture() {
   return { report, lock };
 }
 
+// Synthetic below-threshold input; not an installed dependency in the reviewed graph.
+function withModerateFinding(input) {
+  const name = 'unreviewed-moderate';
+  const node = `node_modules/${name}`;
+  input.lock.packages[node] = { version: '1.0.0' };
+  input.report.vulnerabilities[name] = {
+    name,
+    severity: 'moderate',
+    nodes: [node],
+    via: [
+      {
+        name,
+        dependency: name,
+        url: 'https://example.test/advisory',
+        range: '<=1.0.0',
+        severity: 'moderate',
+      },
+    ],
+  };
+  recount(input.report);
+  return input;
+}
+
 const evaluate = ({ report, lock }, options = {}) =>
   evaluateAudit(report, lock, {
     now,
@@ -146,13 +129,18 @@ test('accepts the reviewed production graph, including both Metro paths and cycl
 });
 
 test('superseded Expo patch versions are outside the current reviewed graph', () => {
-  const input = fixture();
-  input.lock.packages[''].dependencies.expo = '~57.0.27';
-  input.lock.packages['node_modules/expo'].version = '57.0.27';
-  input.lock.packages['node_modules/expo/node_modules/@expo/cli'].version = '57.0.28';
-  const result = evaluate(input);
-  assert.ok(result.blocked.includes('expo'));
-  assert.ok(result.blocked.includes('@expo/cli'));
+  for (const [expo, cli] of [
+    ['57.0.27', '57.0.28'],
+    ['57.0.30', '57.0.31'],
+  ]) {
+    const input = fixture();
+    input.lock.packages[''].dependencies.expo = `~${expo}`;
+    input.lock.packages['node_modules/expo'].version = expo;
+    input.lock.packages['node_modules/expo/node_modules/@expo/cli'].version = cli;
+    const result = evaluate(input);
+    assert.ok(result.blocked.includes('expo'));
+    assert.ok(result.blocked.includes('@expo/cli'));
+  }
 });
 
 test('expiry is exclusive, cannot be extended, and blocks unresolved findings', () => {
@@ -267,13 +255,13 @@ test('adding a reviewed transitive leaf directly to the application requires rev
 
 test('changing the reviewed root package range requires review', () => {
   const input = fixture();
-  input.lock.packages[''].dependencies.expo = '^57.0.27';
+  input.lock.packages[''].dependencies.expo = '^57.0.31';
   assert.ok(evaluate(input).blocked.includes('expo'));
 });
 
 test('new dependency edges are rejected even when the new edge is moderate', () => {
-  const input = fixture();
-  input.report.vulnerabilities.metro.via.push('uuid');
+  const input = withModerateFinding(fixture());
+  input.report.vulnerabilities.metro.via.push('unreviewed-moderate');
   assert.ok(evaluate(input).blocked.includes('metro'));
 });
 
@@ -284,11 +272,9 @@ test('cycles alone cannot manufacture an accepted advisory', () => {
 });
 
 test('below-threshold findings are disclosed but do not need an exception', () => {
-  const input = fixture();
+  const input = withModerateFinding(fixture());
   input.report.vulnerabilities = Object.fromEntries(
-    Object.entries(input.report.vulnerabilities).filter(([name]) =>
-      ['uuid', 'xcode'].includes(name)
-    )
+    Object.entries(input.report.vulnerabilities).filter(([name]) => name === 'unreviewed-moderate')
   );
   recount(input.report);
   assert.deepEqual(evaluate(input, { npmStatus: 0 }), {
