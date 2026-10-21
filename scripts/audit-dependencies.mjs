@@ -12,7 +12,7 @@ const levels = ['info', 'low', 'moderate', 'high', 'critical'];
 const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const isBlocking = (severity) => ['high', 'critical'].includes(severity);
 const rootRanges = {
-  expo: '~57.0.30',
+  expo: '~57.0.31',
   'react-native': '0.86.3',
   '@react-native/virtualized-lists': '0.86.3',
 };
@@ -25,24 +25,15 @@ function reviewed(name, version, via, locations = [`node_modules/${name}`]) {
   return { nodes, via };
 }
 
-// Application-owned Node tooling graph re-reviewed on 21 October after the SDK 57 patch update.
+// Application-owned Node tooling graph re-reviewed on 21 October after the Expo 57.0.31 patch update.
 // This is NOT the binding library's peer-only waiver. New paths, edges or versions require review.
 const graph = new Map([
   [
     '@expo/cli',
     reviewed(
       '@expo/cli',
-      '57.0.31',
-      [
-        '@expo/code-signing-certificates',
-        '@expo/config',
-        '@expo/config-plugins',
-        '@expo/inline-modules',
-        '@expo/metro',
-        '@expo/metro-config',
-        '@expo/prebuild-config',
-        'node-forge',
-      ],
+      '57.0.32',
+      ['@expo/code-signing-certificates', '@expo/metro', '@expo/metro-config', 'node-forge'],
       ['node_modules/expo/node_modules/@expo/cli']
     ),
   ],
@@ -64,7 +55,7 @@ const graph = new Map([
     reviewed(
       '@expo/metro-config',
       '57.0.13',
-      ['@expo/config', '@expo/metro'],
+      ['@expo/metro'],
       ['node_modules/expo/node_modules/@expo/metro-config']
     ),
   ],
@@ -77,17 +68,7 @@ const graph = new Map([
     reviewed('@react-native/virtualized-lists', '0.86.3', ['react-native']),
   ],
   ['braces', reviewed('braces', '3.0.3', [])],
-  [
-    'expo',
-    reviewed('expo', '57.0.30', [
-      '@expo/cli',
-      '@expo/config',
-      '@expo/config-plugins',
-      '@expo/local-build-cache-provider',
-      '@expo/metro',
-      '@expo/metro-config',
-    ]),
-  ],
+  ['expo', reviewed('expo', '57.0.31', ['@expo/cli', '@expo/metro', '@expo/metro-config'])],
   [
     'metro',
     reviewed('metro', '0.84.6', ['metro-config', 'metro-file-map', 'metro-transform-worker']),

@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@react-native/virtualized-lists": "0.86.3",
-    "expo": "~57.0.30",
+    "expo": "~57.0.31",
     "expo-asset": "~57.0.20",
     "expo-font": "~57.0.4",
     "expo-splash-screen": "~57.0.10",
