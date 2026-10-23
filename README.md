@@ -126,10 +126,16 @@ services through an application API designed for mobile clients.
 
 ## ✅ Requirements
 
-- Node.js 22.13 or newer
+- Expo SDK 58, React Native 0.88 and React 19.3 (versions are coordinated in the lockfile)
+- A supported Node.js 22 (22.13+) or 24 (24.3+) release
 - Android 7 or newer, or iOS 16.4 or newer
 - Xcode 26.4 or newer for local iOS builds
 - A supported Expo development environment; use a development build for production-oriented work
+
+Expo Go must match SDK 58. For Expo's built-in tunnel, run `npx expo login` locally, then
+`npm start -- --tunnel`. SDK 58 uses an Expo-account tunnel by default. The legacy ngrok provider
+remains available through `npm start -- --tunnel ngrok` with `@expo/ngrok` installed. This is
+separate from the public URL configured for `form0 serve --app`.
 
 ## 📚 Documentation
 

@@ -39,13 +39,13 @@ and high threshold, then applies the fail-closed policy in
 exact versioned production dependency chains may pass before the deadline:
 
 - [braces 3.0.3: GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
-  through micromatch 4.0.8, React Native 0.86.3's Metro 0.84.6 graph and
-  @expo/metro 56.0.2's nested Metro 0.84.5 graph. Deeply nested patterns can exhaust
+  through micromatch 4.0.8, React Native 0.88.0's Metro 0.87.1 graph and
+  @expo/metro 58.0.0. Deeply nested patterns can exhaust
   the Node stack. Default watcher globs are generated from fixed patterns and
   developer configuration, but customized inputs remain a risk.
 - [node-forge 1.4.0: GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv)
-  through @expo/code-signing-certificates 0.0.6 and Expo 57.0.27's nested CLI
-  57.0.28. Malformed RSA signatures may be accepted with low-exponent keys.
+  through @expo/code-signing-certificates 0.0.7 and Expo 58.0.17's nested CLI
+  58.1.14. Malformed RSA signatures may be accepted with low-exponent keys.
   These inspected callers are Node development/signing tools. The default app
   has no EAS project ID or custom update-signing configuration; enabling these
   features or accepting certificate/key inputs requires reassessing exposure.
@@ -56,6 +56,14 @@ dependency entries. The high entries propagate the two advisories above; the
 moderate entries propagate uuid through xcode. Moderate findings are disclosed,
 not excepted, and remain below the unchanged high threshold. Compatible leaf
 repairs removed source-map-js, shell-quote and brace-expansion findings.
+
+The 23 October SDK 58 migration re-reviewed the installed production graph and reports
+**15 high / 0 moderate / 0 critical** entries for the same two advisories. Its exact
+paths/versions are pinned in the policy; the old SDK 57 and nested Metro paths are no
+longer accepted. This rebase does not add advisory identities, extend the 7 November
+deadline or fix the vulnerabilities. The Node watcher-glob and certificate/signing
+callers were inspected again; this is still accepted temporary risk. Native binding
+exception remediation remains a separate task.
 
 The policy pins the reviewed affected paths, versions and allowed audit edges;
 additional copies, new direct uses of transitive packages, new advisories,
