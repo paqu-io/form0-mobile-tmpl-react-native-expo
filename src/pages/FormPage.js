@@ -108,6 +108,7 @@ export default function FormPage({ formId, onBack }) {
         <>
           <Form0Form
             schema={schema}
+            recordKind="new"
             initialValues={formDefinition.initialValues}
             onSubmit={handleSubmit}
             onRequestClose={handleRequestClose}

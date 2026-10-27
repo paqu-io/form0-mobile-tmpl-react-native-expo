@@ -163,3 +163,18 @@ See [SUPPORT.md](https://github.com/paqu-io/form0-mobile-tmpl-react-native-expo/
 ## 📄 License
 
 [MIT](./LICENSE)
+
+
+## Record lifecycle and saving
+
+The starter's demonstration routes explicitly open new records. When adapting the common
+Form0Form wrapper for a saved record, pass `recordKind="existing"`; prefilled values alone do not
+select the lifecycle. Existing engineOptions are preserved. The current bindings default lifecycle
+and supported input focus/blur/click on; use explicit lifecycle:false or fieldInteractions:[] for
+an opt-out. Upgrade the binding and its required core dependency together.
+
+Submission logs remain host-owned. Successful callbacks acknowledge the intended persistence;
+failed writes must reject, keeping editor work available for retry. The web starter reports full
+and partial connector failures; the mobile starter propagates SQLite failures before invoking the
+host's success callback. Adding retention or durable drafts to a production host also requires
+persisting/restoring the matching freshness companion outside saved record values.

@@ -33,6 +33,8 @@ export default function Form0Form({
   showPrimaryActionsInViewMode,
   imageResolver,
   onSubmit,
+  recordKind,
+  engineOptions,
   onSnapshotChange,
   ...props
 }) {
@@ -58,6 +60,16 @@ export default function Form0Form({
   }, []);
 
   const schemaElements = useMemo(() => schema?.form?.elements ?? [], [schema]);
+  const classifiedEngineOptions = useMemo(
+    () =>
+      recordKind === undefined
+        ? engineOptions
+        : {
+            ...engineOptions,
+            events: { ...engineOptions?.events, recordKind },
+          },
+    [engineOptions, recordKind]
+  );
 
   // Resolve effective values from props or config
   const effectiveMode =
@@ -147,12 +159,13 @@ export default function Form0Form({
             console.log('[form0] Raw values:', meta.rawValues);
           }
         }
+        throw error;
       }
     },
     [persistEnabled, schema, schemaElements]
   );
 
-  const handleSubmit = useCallback(
+  const submitRecord = useCallback(
     async (structuredRecord, meta) => {
       await defaultStructuredSubmit(structuredRecord, meta);
 
@@ -165,9 +178,17 @@ export default function Form0Form({
     [defaultStructuredSubmit, onSubmit]
   );
 
+  const handleSubmit = useCallback((structuredRecord, meta) => {
+    const saving = submitRecord(structuredRecord, meta);
+    if (meta?.preparationId) return saving;
+    // Legacy bindings ignore promises and perform no persistence acknowledgement.
+    void saving.catch(() => {});
+  }, [submitRecord]);
+
   return (
     <FormRenderer
       schema={schema}
+      engineOptions={classifiedEngineOptions}
       initialValues={initialValues}
       initialSnapshot={initialSnapshot}
       overrideValues={overrideValues}
