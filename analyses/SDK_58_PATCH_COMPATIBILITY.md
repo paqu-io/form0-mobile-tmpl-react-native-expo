@@ -1,30 +1,30 @@
-# SDK 58 patch compatibility and pending audit decision — 28 October 2026
+# SDK 58 patch compatibility and approved audit decision — 28 October 2026
 
 PR #26 fails on both Node 22.23.4 and 24.22.1 at `expo install --check`, before
 bundle export or security auditing. Expo's online compatibility metadata now
 requires these patches within the existing SDK:
 
-| Package | Previous | Selected |
-| --- | --- | --- |
-| expo | 58.0.17 | 58.0.20 |
-| expo-font | 58.0.9 | 58.0.10 |
-| expo-sqlite | 58.0.13 | 58.0.14 |
+| Package     | Previous | Selected |
+| ----------- | -------- | -------- |
+| expo        | 58.0.17  | 58.0.20  |
+| expo-font   | 58.0.9   | 58.0.10  |
+| expo-sqlite | 58.0.13  | 58.0.14  |
 
 The declared ranges advance to the corresponding `~` versions. React Native
 0.88.0, React 19.3.0 and the released form0 dependencies remain unchanged. The
 lockfile includes the compatible Expo dependency updates, including CLI 58.1.16
 and node-forge 1.4.2. No dependency overrides or SDK-major migration are involved.
 
-## Audit decision: not approved or implemented
+## Audit decision: approved on 28 October 2026
 
 A fresh production audit of this candidate reports three high entries for one
 advisory, [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5):
 
-| Package | Exact installed path | Version | Affected high dependency |
-| --- | --- | --- | --- |
-| expo | node_modules/expo | 58.0.20 | @expo/cli |
-| @expo/cli | node_modules/expo/node_modules/@expo/cli | 58.1.16 | zod |
-| zod | node_modules/zod | 3.25.76 | Advisory itself |
+| Package   | Exact installed path                     | Version | Affected high dependency |
+| --------- | ---------------------------------------- | ------- | ------------------------ |
+| expo      | node_modules/expo                        | 58.0.20 | @expo/cli                |
+| @expo/cli | node_modules/expo/node_modules/@expo/cli | 58.1.16 | zod                      |
+| zod       | node_modules/zod                         | 3.25.76 | Advisory itself          |
 
 The advisory describes excessive memory allocation while validating oversized
 collections, potentially terminating a Node process. The published fixed range
@@ -37,13 +37,13 @@ arrays without upper bounds. This identifies actual tooling use; it is not an
 exploit reproduction or a claim that arbitrary remote input reaches these parsers.
 App records and core form validation do not use these Expo CLI schemas.
 
-The existing template security exception covers braces and node-forge only and
-expires on **7 November 2026, 00:00 UTC**. The CLI repository's separately approved
-exception does not authorize an additional advisory in this template. The current
-template policy correctly rejects the new Zod finding. It has not been widened,
-and delivery must remain blocked until the finding is fixed or explicitly accepted.
+The maintainer explicitly approved this template's narrow Zod exception on
+28 October, retaining the **7 November 2026, 00:00 UTC** deadline. The separate
+CLI approval was not treated as authorization for this repository. The earlier
+braces/node-forge allowances are retired because this updated report no longer
+needs them. Their high/critical recurrence now blocks again.
 
-If the maintainer approves a temporary exception, the proposed boundary is:
+The approved and implemented boundary is:
 
 - Add only GHSA-mrhx-c7xc-m3w5 with its exact reported `<4.6.6` range.
 - Review and pin the three installed package versions/paths above and their
@@ -54,8 +54,10 @@ If the maintainer approves a temporary exception, the proposed boundary is:
 - Keep actual accepted-risk messages distinct from a clean audit or a fixed
   vulnerability. Reassess upstream Expo support before the deadline.
 
-This document is a review proposal, not approval or an active audit-policy change.
-An incompatible Zod major override or Expo downgrade is outside this patch.
+The policy verifies the entire installed Expo/CLI/Zod parent context even for a
+leaf-only audit, including the two parent dependency ranges. No app-level direct
+Zod use is excepted. An incompatible Zod major override or Expo downgrade remains
+outside this patch.
 
 ## Verification provenance
 
@@ -71,14 +73,20 @@ The following checks pass on **both Node 22.23.4 and Node 24.22.1**:
 - Generated supporting-image registry verification.
 - Online `expo install --check` with Expo's current compatibility metadata.
 - Android and iOS Hermes exports (`expo export --platform all --max-workers 2`).
-- All 19 existing temporary-audit-policy safeguard tests.
+- All 22 updated temporary-audit-policy safeguard tests.
+- The live production policy audit, reporting the three accepted Zod-chain
+  entries explicitly as temporary risk, **NOT patched**, with the unchanged
+  7 November expiry.
 
-The unchanged live production audit policy correctly **fails** for the three high
-Zod-chain entries described above. There are also five low entries below the
-existing high threshold. This is not an all-green CI or clean-audit claim.
+Before approval, the unchanged policy correctly **failed** for the three high
+Zod-chain entries; that evidence and the initial 19-test results are retained.
+There are also five low entries below the existing high threshold. Approval does
+not make this a clean audit. The expanded guards cover the complete parent
+context, retired waivers, new paths/versions/edges/direct uses, severity
+escalation, malformed reports and the exact expiry boundary.
 
 Command logs and audit JSON are retained under
 `.local-test-harnesses/form0-plan3-20261022/logs/mobile-pr26-*`, including the
-`mobile-pr26-checks.json` receipt. Existing SDK 58 evidence was preserved and the
-checks ran sequentially. No secret files, native device acceptance, merge,
+`mobile-pr26-checks.json` and `mobile-pr26-approved-checks.json` receipts. Existing
+SDK 58 evidence was preserved and the checks ran sequentially. No secret files, native device acceptance, merge,
 publication or alert dismissal are part of this patch review.

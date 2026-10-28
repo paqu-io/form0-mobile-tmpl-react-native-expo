@@ -5,110 +5,58 @@ import { pathToFileURL } from "node:url";
 
 export const EXCEPTION_EXPIRES = "2026-11-07T00:00:00Z";
 const advisories = {
-  braces: {
-    url: "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
-    range: "<=3.0.3",
-  },
-  "node-forge": {
-    url: "https://github.com/advisories/GHSA-86w9-cpqp-85rv",
-    range: "<=1.4.0",
+  zod: {
+    url: "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+    range: "<4.6.6",
   },
 };
 const levels = ["info", "low", "moderate", "high", "critical"];
 const isObject = (value) =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 const isBlocking = (severity) => ["high", "critical"].includes(severity);
-const rootRanges = {
-  expo: "~58.0.17",
-  "react-native": "0.88.0",
-  "@react-native/virtualized-lists": "0.88.0",
-};
+const rootRanges = { expo: "~58.0.20" };
+const excludedFlags = ["dev", "peer", "optional", "devOptional", "link"];
 
-function reviewed(name, version, via, locations = [`node_modules/${name}`]) {
+function reviewed(
+  name,
+  version,
+  via,
+  locations = [`node_modules/${name}`],
+  dependencies = {},
+) {
   const nodes = Object.fromEntries(locations.map((path) => [path, version]));
-  return { nodes, via };
+  return { nodes, via, dependencies };
 }
 
-// Application-owned Node tooling graph re-reviewed on 23 October for Expo SDK 58.0.17.
-// The same two advisory identities and 7 November deadline apply; SDK 57 paths are not waived.
-// This is NOT the binding library's peer-only waiver. New paths, edges or versions require review.
+// Approved on 28 October for this exact Expo tooling chain, through 7 November only.
+// The former braces/node-forge allowances are retired; no app-level Zod use is waived.
 const graph = new Map([
   [
     "@expo/cli",
     reviewed(
       "@expo/cli",
-      "58.1.14",
-      [
-        "@expo/code-signing-certificates",
-        "@expo/metro",
-        "@expo/metro-config",
-        "node-forge",
-      ],
+      "58.1.16",
+      ["@expo/config", "@expo/metro-config", "@expo/prebuild-config", "zod"],
       ["node_modules/expo/node_modules/@expo/cli"],
+      { zod: "^3.25.76" },
     ),
   ],
-  [
-    "@expo/code-signing-certificates",
-    reviewed("@expo/code-signing-certificates", "0.0.7", ["node-forge"]),
-  ],
-  [
-    "@expo/metro",
-    reviewed("@expo/metro", "58.0.0", [
-      "metro",
-      "metro-config",
-      "metro-file-map",
-      "metro-transform-worker",
-    ]),
-  ],
-  [
-    "@expo/metro-config",
-    reviewed(
-      "@expo/metro-config",
-      "58.0.16",
-      ["@expo/metro"],
-      ["node_modules/expo/node_modules/@expo/metro-config"],
-    ),
-  ],
-  [
-    "@react-native/community-cli-plugin",
-    reviewed("@react-native/community-cli-plugin", "0.88.0", ["metro"]),
-  ],
-  [
-    "@react-native/virtualized-lists",
-    reviewed("@react-native/virtualized-lists", "0.88.0", ["react-native"]),
-  ],
-  ["braces", reviewed("braces", "3.0.3", [])],
   [
     "expo",
-    reviewed("expo", "58.0.17", [
-      "@expo/cli",
-      "@expo/metro",
-      "@expo/metro-config",
-    ]),
+    reviewed(
+      "expo",
+      "58.0.20",
+      [
+        "@expo/cli",
+        "@expo/config",
+        "@expo/local-build-cache-provider",
+        "@expo/metro-config",
+      ],
+      ["node_modules/expo"],
+      { "@expo/cli": "^58.1.16" },
+    ),
   ],
-  [
-    "metro",
-    reviewed("metro", "0.87.1", [
-      "metro-config",
-      "metro-file-map",
-      "metro-transform-worker",
-    ]),
-  ],
-  ["metro-config", reviewed("metro-config", "0.87.1", ["metro"])],
-  ["metro-file-map", reviewed("metro-file-map", "0.87.1", ["micromatch"])],
-  [
-    "metro-transform-worker",
-    reviewed("metro-transform-worker", "0.87.1", ["metro"]),
-  ],
-  ["micromatch", reviewed("micromatch", "4.0.8", ["braces"])],
-  ["node-forge", reviewed("node-forge", "1.4.0", [])],
-  [
-    "react-native",
-    reviewed("react-native", "0.88.0", [
-      "@react-native/community-cli-plugin",
-      "@react-native/virtualized-lists",
-    ]),
-  ],
+  ["zod", reviewed("zod", "3.25.76", [])],
 ]);
 
 function validateReport(report, lock, npmStatus, now) {
@@ -178,9 +126,21 @@ function validateReport(report, lock, npmStatus, now) {
   }
 }
 
-function isReviewedChain(start, vulnerabilities, packages) {
-  const pending = [start];
-  const visited = new Set();
+function isReviewedNode(node, spec, packages) {
+  const pkg = packages[node];
+  return (
+    Object.hasOwn(spec.nodes, node) &&
+    pkg?.version === spec.nodes[node] &&
+    excludedFlags.every(
+      (flag) => pkg[flag] === undefined || pkg[flag] === false,
+    ) &&
+    Object.entries(spec.dependencies).every(
+      ([name, range]) => pkg.dependencies?.[name] === range,
+    )
+  );
+}
+
+function isReviewedInstallation(packages) {
   const root = packages[""];
   const rootGroups = [
     "dependencies",
@@ -188,15 +148,8 @@ function isReviewedChain(start, vulnerabilities, packages) {
     "optionalDependencies",
     "peerDependencies",
   ];
-  let reachesAdvisory = false;
-  // npm reports cycles across Metro / React Native. A cycle alone is not a waiver.
-  while (pending.length) {
-    const name = pending.pop();
-    if (visited.has(name)) continue;
-    visited.add(name);
-    const entry = vulnerabilities[name];
-    const spec = graph.get(name);
-    if (!spec || entry.severity !== "high") return false;
+  // Even a leaf-only audit must belong to the complete approved Expo parent context.
+  for (const [name, spec] of graph) {
     if (Object.hasOwn(rootRanges, name)) {
       if (
         root.dependencies?.[name] !== rootRanges[name] ||
@@ -205,23 +158,33 @@ function isReviewedChain(start, vulnerabilities, packages) {
         return false;
     } else if (rootGroups.some((group) => root[group]?.[name])) return false;
     if (
-      !entry.nodes.every((node) => {
-        const pkg = packages[node];
-        return (
-          Object.hasOwn(spec.nodes, node) &&
-          pkg.version === spec.nodes[node] &&
-          ["dev", "peer", "optional", "devOptional", "link"].every(
-            (flag) => pkg[flag] === undefined || pkg[flag] === false,
-          )
-        );
-      })
+      !Object.keys(spec.nodes).every((node) =>
+        isReviewedNode(node, spec, packages),
+      )
     )
+      return false;
+  }
+  return true;
+}
+
+function isReviewedChain(start, vulnerabilities, packages) {
+  if (!isReviewedInstallation(packages)) return false;
+  const pending = [start];
+  const visited = new Set();
+  let reachesAdvisory = false;
+  while (pending.length) {
+    const name = pending.pop();
+    if (visited.has(name)) continue;
+    visited.add(name);
+    const entry = vulnerabilities[name];
+    const spec = graph.get(name);
+    if (!spec || entry.severity !== "high") return false;
+    if (!entry.nodes.every((node) => isReviewedNode(node, spec, packages)))
       return false;
     for (const via of entry.via) {
       if (typeof via === "string") {
         if (!spec.via.includes(via)) return false;
-        // Moderate branches remain below the unchanged threshold; an escalation
-        // sends them through the reviewed high-chain checks instead of ignoring it.
+        // An escalation on a below-threshold branch must pass the same exact-chain checks.
         if (isBlocking(vulnerabilities[via].severity)) pending.push(via);
       } else {
         const approved = advisories[name];

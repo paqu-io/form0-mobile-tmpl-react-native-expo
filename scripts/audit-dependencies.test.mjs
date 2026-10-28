@@ -2,19 +2,19 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { evaluateAudit } from "./audit-dependencies.mjs";
+import { evaluateAudit, EXCEPTION_EXPIRES } from "./audit-dependencies.mjs";
 
-const now = Date.parse("2026-10-23T12:00:00Z");
+const now = Date.parse("2026-10-28T12:00:00Z");
 const expiry = Date.parse("2026-11-07T00:00:00Z");
-const bracesUrl = "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm";
-const forgeUrl = "https://github.com/advisories/GHSA-86w9-cpqp-85rv";
+const zodUrl = "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5";
+const cliPath = "node_modules/expo/node_modules/@expo/cli";
 const levels = ["info", "low", "moderate", "high", "critical"];
-const advisory = (name, url, severity = "high") => ({
+const advisory = (name, url, severity = "high", range = "<4.6.6") => ({
   name,
   dependency: name,
   url,
   severity,
-  range: name === "braces" ? "<=3.0.3" : "<=1.4.0",
+  range,
 });
 
 function recount(report) {
@@ -27,51 +27,51 @@ function recount(report) {
   };
 }
 
-// Independently characterized from the 23 October SDK 58 production report, not policy constants.
+// Independently characterized from the 28 October installed SDK 58 report, not policy constants.
 function fixture() {
   const definitions = [
     [
       "@expo/cli",
-      "58.1.14",
-      [
-        "@expo/code-signing-certificates",
-        "@expo/metro",
-        "@expo/metro-config",
-        "node-forge",
-      ],
-      ["node_modules/expo/node_modules/@expo/cli"],
+      "58.1.16",
+      ["@expo/config", "@expo/metro-config", "@expo/prebuild-config", "zod"],
+      "high",
+      cliPath,
     ],
-    ["@expo/code-signing-certificates", "0.0.7", ["node-forge"]],
-    [
-      "@expo/metro",
-      "58.0.0",
-      ["metro", "metro-config", "metro-file-map", "metro-transform-worker"],
-    ],
+    ["@expo/config", "58.0.8", ["deepmerge"], "low"],
+    ["@expo/local-build-cache-provider", "58.0.8", ["@expo/config"], "low"],
     [
       "@expo/metro-config",
-      "58.0.16",
-      ["@expo/metro"],
-      ["node_modules/expo/node_modules/@expo/metro-config"],
+      "58.0.18",
+      ["@expo/config"],
+      "low",
+      "node_modules/expo/node_modules/@expo/metro-config",
     ],
-    ["@react-native/community-cli-plugin", "0.88.0", ["metro"]],
-    ["@react-native/virtualized-lists", "0.88.0", ["react-native"]],
-    ["braces", "3.0.3", [advisory("braces", bracesUrl)]],
-    ["expo", "58.0.17", ["@expo/cli", "@expo/metro", "@expo/metro-config"]],
+    ["@expo/prebuild-config", "58.0.16", ["@expo/config"], "low"],
     [
-      "metro",
-      "0.87.1",
-      ["metro-config", "metro-file-map", "metro-transform-worker"],
+      "deepmerge",
+      "4.3.1",
+      [
+        advisory(
+          "deepmerge",
+          "https://github.com/advisories/GHSA-gcqx-w48m-w2h4",
+          "low",
+          "<=4.3.1",
+        ),
+      ],
+      "low",
     ],
-    ["metro-config", "0.87.1", ["metro"]],
-    ["metro-file-map", "0.87.1", ["micromatch"]],
-    ["metro-transform-worker", "0.87.1", ["metro"]],
-    ["micromatch", "4.0.8", ["braces"]],
-    ["node-forge", "1.4.0", [advisory("node-forge", forgeUrl)]],
     [
-      "react-native",
-      "0.88.0",
-      ["@react-native/community-cli-plugin", "@react-native/virtualized-lists"],
+      "expo",
+      "58.0.20",
+      [
+        "@expo/cli",
+        "@expo/config",
+        "@expo/local-build-cache-provider",
+        "@expo/metro-config",
+      ],
+      "high",
     ],
+    ["zod", "3.25.76", [advisory("zod", zodUrl)], "high"],
   ];
   const report = { auditReportVersion: 2, vulnerabilities: {}, metadata: {} };
   const lock = {
@@ -79,7 +79,7 @@ function fixture() {
     packages: {
       "": {
         dependencies: {
-          expo: "~58.0.17",
+          expo: "~58.0.20",
           "react-native": "0.88.0",
           "@react-native/virtualized-lists": "0.88.0",
         },
@@ -90,93 +90,78 @@ function fixture() {
     name,
     version,
     via,
-    locations,
-    severity = "high",
+    severity,
+    path = `node_modules/${name}`,
   ] of definitions) {
-    const nodes = locations ?? [`node_modules/${name}`];
-    for (const path of nodes)
-      lock.packages[path] = {
-        version,
-      };
-    report.vulnerabilities[name] = { name, severity, via, nodes };
+    lock.packages[path] = { version };
+    report.vulnerabilities[name] = { name, severity, via, nodes: [path] };
   }
+  lock.packages["node_modules/expo"].dependencies = { "@expo/cli": "^58.1.16" };
+  lock.packages[cliPath].dependencies = { zod: "^3.25.76" };
   recount(report);
   return { report, lock };
 }
 
-// Synthetic below-threshold input; not an installed dependency in the reviewed graph.
 function withModerateFinding(input) {
   const name = "unreviewed-moderate";
-  const node = `node_modules/${name}`;
-  input.lock.packages[node] = { version: "1.0.0" };
+  input.lock.packages[`node_modules/${name}`] = { version: "1.0.0" };
   input.report.vulnerabilities[name] = {
     name,
     severity: "moderate",
-    nodes: [node],
+    nodes: [`node_modules/${name}`],
     via: [
-      {
-        name,
-        dependency: name,
-        url: "https://example.test/advisory",
-        range: "<=1.0.0",
-        severity: "moderate",
-      },
+      advisory(name, "https://example.test/advisory", "moderate", "<=1.0.0"),
     ],
   };
   recount(input.report);
   return input;
 }
-
 const evaluate = ({ report, lock }, options = {}) =>
-  evaluateAudit(report, lock, {
-    now,
-    npmStatus: 1,
-    ...options,
-  });
+  evaluateAudit(report, lock, { now, npmStatus: 1, ...options });
 
-test("accepts the reviewed SDK 58 production graph and Metro cycles", () => {
-  const result = evaluate(fixture());
-  assert.equal(result.accepted.length, 15);
-  assert.deepEqual(result.blocked, []);
-  assert.equal(result.expired, false);
+const accepted = ["@expo/cli", "expo", "zod"];
+test("accepts only the reviewed Expo CLI Zod chain and keeps the fixed deadline", () => {
+  assert.equal(EXCEPTION_EXPIRES, "2026-11-07T00:00:00Z");
+  assert.deepEqual(evaluate(fixture()), {
+    accepted,
+    blocked: [],
+    expired: false,
+  });
 });
 
-test("SDK 57 and superseded SDK 58 versions are outside the current reviewed graph", () => {
+test("SDK 57 and superseded SDK 58 versions reject every exception entry", () => {
   for (const [expo, cli] of [
     ["57.0.27", "57.0.28"],
-    ["57.0.31", "57.0.32"],
-    ["58.0.16", "58.1.13"],
+    ["58.0.17", "58.1.14"],
+    ["58.0.19", "58.1.15"],
   ]) {
     const input = fixture();
     input.lock.packages[""].dependencies.expo = `~${expo}`;
     input.lock.packages["node_modules/expo"].version = expo;
-    input.lock.packages["node_modules/expo/node_modules/@expo/cli"].version =
-      cli;
-    const result = evaluate(input);
-    assert.ok(result.blocked.includes("expo"));
-    assert.ok(result.blocked.includes("@expo/cli"));
+    input.lock.packages[cliPath].version = cli;
+    assert.deepEqual(evaluate(input).blocked, accepted);
   }
 });
 
-test("a nested Metro copy is outside the SDK 58 reviewed topology", () => {
+test("a nested Zod copy is outside the reviewed topology", () => {
   const input = fixture();
-  const nested = "node_modules/@expo/metro/node_modules/metro";
-  input.lock.packages[nested] = { version: "0.87.1" };
-  input.report.vulnerabilities.metro.nodes.push(nested);
-  assert.ok(evaluate(input).blocked.includes("metro"));
+  const nested = "node_modules/other/node_modules/zod";
+  input.lock.packages[nested] = { version: "3.25.76" };
+  input.report.vulnerabilities.zod.nodes.push(nested);
+  assert.deepEqual(evaluate(input).blocked, accepted);
 });
 
-test("expiry is exclusive, cannot be extended, and blocks unresolved findings", () => {
-  assert.equal(evaluate(fixture(), { now: expiry - 1 }).blocked.length, 0);
-  for (const time of [expiry, expiry + 1]) {
-    const result = evaluate(fixture(), { now: time });
-    assert.equal(result.expired, true);
-    assert.equal(result.accepted.length, 0);
-    assert.equal(result.blocked.length, 15);
-  }
+test("expiry is exclusive and blocks unresolved findings", () => {
+  assert.deepEqual(evaluate(fixture(), { now: expiry - 1 }).blocked, []);
+  for (const time of [expiry, expiry + 1])
+    assert.deepEqual(evaluate(fixture(), { now: time }), {
+      accepted: [],
+      blocked: accepted,
+      expired: true,
+    });
 });
 
-test("a clean report passes even after expiry; exceptions are not required findings", () => {
+test("a clean report passes even after expiry", () => {
   const input = fixture();
   input.report.vulnerabilities = {};
   recount(input.report);
@@ -208,73 +193,56 @@ test("unrelated high and critical findings stay blocking", () => {
   }
 });
 
-test("new advisories on either accepted leaf block every affected chain", () => {
-  for (const leaf of ["braces", "node-forge"]) {
-    const input = fixture();
-    input.report.vulnerabilities[leaf].via.push(
-      advisory(leaf, "https://github.com/advisories/GHSA-new"),
-    );
-    const result = evaluate(input);
-    assert.ok(result.blocked.includes(leaf));
-    assert.ok(result.blocked.includes("expo"));
-  }
+test("new advisories on Zod block every affected chain", () => {
+  const input = fixture();
+  input.report.vulnerabilities.zod.via.push(
+    advisory("zod", "https://github.com/advisories/GHSA-new"),
+  );
+  assert.deepEqual(evaluate(input).blocked, accepted);
 });
 
 test("advisory identity, range and severity cannot drift", () => {
   for (const field of ["name", "dependency", "url", "range", "severity"]) {
     const input = fixture();
-    input.report.vulnerabilities.braces.via[0][field] =
+    input.report.vulnerabilities.zod.via[0][field] =
       field === "severity" ? "critical" : "changed";
     if (["name", "dependency", "severity"].includes(field))
       assert.throws(() => evaluate(input));
-    else assert.ok(evaluate(input).blocked.includes("braces"));
+    else assert.deepEqual(evaluate(input).blocked, accepted);
   }
 });
 
 test("a reviewed advisory escalated to critical is not waived", () => {
   const input = fixture();
-  input.report.vulnerabilities.braces.severity = "critical";
-  input.report.vulnerabilities.braces.via[0].severity = "critical";
-  // Propagated severities must be internally consistent too.
-  for (const entry of Object.values(input.report.vulnerabilities)) {
+  input.report.vulnerabilities.zod.via[0].severity = "critical";
+  for (const entry of Object.values(input.report.vulnerabilities))
     if (entry.severity === "high") entry.severity = "critical";
-  }
   recount(input.report);
-  assert.ok(evaluate(input).blocked.includes("braces"));
+  assert.deepEqual(evaluate(input).blocked, accepted);
 });
 
-test("unexpected nodes, nested copies and changed versions are not waived", () => {
-  for (const mutate of [
-    (input) => {
-      input.report.vulnerabilities.braces.nodes.push(
-        "node_modules/new-parent/node_modules/braces",
-      );
-      input.lock.packages["node_modules/new-parent/node_modules/braces"] = {
-        version: "3.0.3",
-      };
-    },
-    (input) => {
-      input.lock.packages["node_modules/braces"].version = "3.0.4";
-    },
-    (input) => {
-      input.lock.packages["node_modules/expo"].version = "57.0.28";
-    },
+test("unexpected nodes and changed installed versions are not waived", () => {
+  for (const [path, version] of [
+    ["node_modules/zod", "3.25.77"],
+    ["node_modules/expo", "58.0.21"],
+    [cliPath, "58.1.17"],
   ]) {
     const input = fixture();
-    mutate(input);
-    assert.ok(evaluate(input).blocked.length > 0);
+    input.lock.packages[path].version = version;
+    assert.deepEqual(evaluate(input).blocked, accepted);
   }
 });
 
 test("dev, peer, optional and linked copies are outside the reviewed production scope", () => {
-  for (const flag of ["dev", "peer", "optional", "link"]) {
-    const input = fixture();
-    input.lock.packages["node_modules/braces"][flag] = true;
-    assert.ok(evaluate(input).blocked.includes("braces"));
-  }
+  for (const path of ["node_modules/expo", cliPath, "node_modules/zod"])
+    for (const flag of ["dev", "peer", "optional", "devOptional", "link"]) {
+      const input = fixture();
+      input.lock.packages[path][flag] = true;
+      assert.deepEqual(evaluate(input).blocked, accepted);
+    }
 });
 
-test("adding a reviewed transitive leaf directly to the application requires review", () => {
+test("adding reviewed transitive Zod directly to the app requires review", () => {
   for (const kind of [
     "dependencies",
     "devDependencies",
@@ -284,35 +252,41 @@ test("adding a reviewed transitive leaf directly to the application requires rev
     const input = fixture();
     input.lock.packages[""][kind] = {
       ...input.lock.packages[""][kind],
-      braces: "^3.0.3",
+      zod: "^3.25.76",
     };
-    assert.ok(evaluate(input).blocked.includes("braces"));
+    assert.deepEqual(evaluate(input).blocked, accepted);
   }
 });
 
 test("changing the reviewed root package range requires review", () => {
   const input = fixture();
-  input.lock.packages[""].dependencies.expo = "^58.0.17";
-  assert.ok(evaluate(input).blocked.includes("expo"));
+  input.lock.packages[""].dependencies.expo = "^58.0.20";
+  assert.deepEqual(evaluate(input).blocked, accepted);
 });
 
 test("new dependency edges are rejected even when the new edge is moderate", () => {
   const input = withModerateFinding(fixture());
-  input.report.vulnerabilities.metro.via.push("unreviewed-moderate");
-  assert.ok(evaluate(input).blocked.includes("metro"));
+  input.report.vulnerabilities["@expo/cli"].via.push("unreviewed-moderate");
+  assert.ok(evaluate(input).blocked.includes("@expo/cli"));
+  assert.ok(evaluate(input).blocked.includes("expo"));
 });
 
 test("cycles alone cannot manufacture an accepted advisory", () => {
   const input = fixture();
-  input.report.vulnerabilities.metro["via"] = ["metro-config"];
-  assert.ok(evaluate(input).blocked.includes("metro"));
+  input.report.vulnerabilities["@expo/cli"].via = ["expo"];
+  input.report.vulnerabilities.expo.via = ["@expo/cli"];
+  delete input.report.vulnerabilities.zod;
+  recount(input.report);
+  const result = evaluate(input);
+  assert.deepEqual(result.accepted, []);
+  assert.deepEqual(result.blocked, ["@expo/cli", "expo"]);
 });
 
-test("below-threshold findings are disclosed but do not need an exception", () => {
+test("below-threshold findings are disclosed without an exception", () => {
   const input = withModerateFinding(fixture());
   input.report.vulnerabilities = Object.fromEntries(
     Object.entries(input.report.vulnerabilities).filter(
-      ([name]) => name === "unreviewed-moderate",
+      ([, entry]) => !["high", "critical"].includes(entry.severity),
     ),
   );
   recount(input.report);
@@ -326,7 +300,7 @@ test("below-threshold findings are disclosed but do not need an exception", () =
 test("malformed reports, errors, missing lock entries and totals fail closed", () => {
   const mutations = [
     (input) => {
-      input.report.error = { message: "private registry failure" };
+      input.report.error = { message: "registry failure" };
     },
     (input) => {
       input.report.auditReportVersion = 1;
@@ -338,18 +312,18 @@ test("malformed reports, errors, missing lock entries and totals fail closed", (
       input.report.metadata.vulnerabilities.total++;
     },
     (input) => {
-      input.report.vulnerabilities.braces.nodes = [];
+      input.report.vulnerabilities.zod.nodes = [];
     },
     (input) => {
-      input.report.vulnerabilities.braces.nodes.push(
-        input.report.vulnerabilities.braces.nodes[0],
+      input.report.vulnerabilities.zod.nodes.push(
+        input.report.vulnerabilities.zod.nodes[0],
       );
     },
     (input) => {
-      input.report.vulnerabilities.braces.via = ["missing"];
+      input.report.vulnerabilities.zod.via = ["missing"];
     },
     (input) => {
-      delete input.lock.packages["node_modules/braces"];
+      delete input.lock.packages["node_modules/zod"];
     },
     (input) => {
       input.lock.lockfileVersion = 2;
@@ -364,10 +338,10 @@ test("malformed reports, errors, missing lock entries and totals fail closed", (
     assert.throws(() => evaluateAudit(value, fixture().lock, { now }));
 });
 
-test("unsupported or inconsistent npm statuses and invalid clocks fail closed", () => {
+test("unsupported npm statuses and invalid clocks fail closed", () => {
   for (const npmStatus of [null, 0, 2, 127])
     assert.throws(() => evaluate(fixture(), { npmStatus }));
-  for (const time of [NaN, Infinity, "2026-10-08"])
+  for (const time of [NaN, Infinity, "2026-10-28"])
     assert.throws(() => evaluate(fixture(), { now: time }));
   const input = fixture();
   input.report.vulnerabilities = {};
@@ -376,16 +350,94 @@ test("unsupported or inconsistent npm statuses and invalid clocks fail closed", 
 });
 
 test("the CLI offers no expiry or report override and does not leak supplied values", () => {
-  const path = new URL("./audit-dependencies.mjs", import.meta.url);
   const result = spawnSync(
     process.execPath,
-    [fileURLToPath(path), "--expires", "PRIVATE_SENTINEL"],
-    {
-      encoding: "utf8",
-      timeout: 5000,
-    },
+    [
+      fileURLToPath(new URL("./audit-dependencies.mjs", import.meta.url)),
+      "--expires",
+      "PRIVATE_SENTINEL",
+    ],
+    { encoding: "utf8", timeout: 5000 },
   );
   assert.equal(result.status, 1);
   assert.match(result.stderr, /failed closed/);
   assert.doesNotMatch(result.stdout + result.stderr, /PRIVATE_SENTINEL/);
+});
+
+test("retired braces and node-forge waivers cannot be reused", () => {
+  for (const [name, version, url, range] of [
+    [
+      "braces",
+      "3.0.3",
+      "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+      "<=3.0.3",
+    ],
+    [
+      "node-forge",
+      "1.4.0",
+      "https://github.com/advisories/GHSA-86w9-cpqp-85rv",
+      "<=1.4.0",
+    ],
+  ]) {
+    const input = fixture();
+    input.lock.packages[`node_modules/${name}`] = { version };
+    input.report.vulnerabilities[name] = {
+      name,
+      severity: "high",
+      nodes: [`node_modules/${name}`],
+      via: [advisory(name, url, "high", range)],
+    };
+    recount(input.report);
+    assert.deepEqual(evaluate(input).blocked, [name]);
+  }
+});
+
+test("even a leaf-only audit needs the complete reviewed Expo parent context", () => {
+  for (const mutate of [
+    (input) => {
+      delete input.lock.packages["node_modules/expo"];
+    },
+    (input) => {
+      delete input.lock.packages[cliPath];
+    },
+    (input) => {
+      input.lock.packages[cliPath].version = "58.1.14";
+    },
+    (input) => {
+      input.lock.packages[""].dependencies.expo = "~58.0.17";
+    },
+    (input) => {
+      input.lock.packages["node_modules/expo"].dependencies["@expo/cli"] =
+        "^58.1.14";
+    },
+    (input) => {
+      input.lock.packages[cliPath].dependencies.zod = "^4.6.6";
+    },
+  ]) {
+    const input = fixture();
+    input.report.vulnerabilities = { zod: input.report.vulnerabilities.zod };
+    recount(input.report);
+    mutate(input);
+    assert.deepEqual(evaluate(input).blocked, ["zod"]);
+  }
+});
+
+test("escalating a below-threshold branch does not extend the exception", () => {
+  for (const severity of ["high", "critical"]) {
+    const input = fixture();
+    input.report.vulnerabilities["@expo/config"].severity = severity;
+    for (const name of [
+      "@expo/cli",
+      "@expo/local-build-cache-provider",
+      "@expo/metro-config",
+      "@expo/prebuild-config",
+      "expo",
+    ])
+      input.report.vulnerabilities[name].severity = severity;
+    recount(input.report);
+    const result = evaluate(input);
+    assert.ok(result.blocked.includes("@expo/config"));
+    assert.ok(result.blocked.includes("@expo/cli"));
+    assert.ok(result.blocked.includes("expo"));
+  }
 });

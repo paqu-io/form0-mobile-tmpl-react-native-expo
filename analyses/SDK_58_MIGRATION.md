@@ -1,7 +1,7 @@
 # Expo SDK 58 migration — 23 October 2026
 
 28 October checkpoint: [SDK 58 patch compatibility](./SDK_58_PATCH_COMPATIBILITY.md)
-records the subsequent compatible patch updates and the separate pending Zod audit
+records the subsequent compatible patch updates and the separately approved Zod audit
 decision. The migration evidence below remains the historical 23 October snapshot.
 
 The form0 mobile starter and independent Plan 3 Android acceptance harness now target Expo SDK
