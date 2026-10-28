@@ -126,10 +126,16 @@ services through an application API designed for mobile clients.
 
 ## ✅ Requirements
 
-- Node.js 22.13 or newer
+- Expo SDK 58, React Native 0.88 and React 19.3 (versions are coordinated in the lockfile)
+- A supported Node.js 22 (22.13+) or 24 (24.3+) release
 - Android 7 or newer, or iOS 16.4 or newer
 - Xcode 26.4 or newer for local iOS builds
 - A supported Expo development environment; use a development build for production-oriented work
+
+Expo Go must match SDK 58. For Expo's built-in tunnel, run `npx expo login` locally, then
+`npm start -- --tunnel`. SDK 58 uses an Expo-account tunnel by default. The legacy ngrok provider
+remains available through `npm start -- --tunnel ngrok` with `@expo/ngrok` installed. This is
+separate from the public URL configured for `form0 serve --app`.
 
 ## 📚 Documentation
 
@@ -157,3 +163,18 @@ See [SUPPORT.md](https://github.com/paqu-io/form0-mobile-tmpl-react-native-expo/
 ## 📄 License
 
 [MIT](./LICENSE)
+
+
+## Record lifecycle and saving
+
+The starter's demonstration routes explicitly open new records. When adapting the common
+Form0Form wrapper for a saved record, pass `recordKind="existing"`; prefilled values alone do not
+select the lifecycle. Existing engineOptions are preserved. The current bindings default lifecycle
+and supported input focus/blur/click on; use explicit lifecycle:false or fieldInteractions:[] for
+an opt-out. Upgrade the binding and its required core dependency together.
+
+Submission logs remain host-owned. Successful callbacks acknowledge the intended persistence;
+failed writes must reject, keeping editor work available for retry. The web starter reports full
+and partial connector failures; the mobile starter propagates SQLite failures before invoking the
+host's success callback. Adding retention or durable drafts to a production host also requires
+persisting/restoring the matching freshness companion outside saved record values.
