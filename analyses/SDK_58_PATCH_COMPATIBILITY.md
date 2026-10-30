@@ -90,3 +90,50 @@ Command logs and audit JSON are retained under
 `mobile-pr26-checks.json` and `mobile-pr26-approved-checks.json` receipts. Existing
 SDK 58 evidence was preserved and the checks ran sequentially. No secret files, native device acceptance, merge,
 publication or alert dismissal are part of this patch review.
+
+## 30 October 2026: PR #27 compatibility patch follow-up
+
+Both quality jobs for PR #27 again failed at `expo install --check`: Expo's online
+SDK 58 metadata now requires the following compatible patches. The same failure
+was reproduced locally before changing dependencies.
+
+| Package                         | Previous | Selected |
+| ------------------------------- | -------- | -------- |
+| expo                            | 58.0.20  | 58.0.21  |
+| expo-asset                      | 58.0.18  | 58.0.19  |
+| expo-font                       | 58.0.10  | 58.0.11  |
+| expo-splash-screen              | 58.0.11  | 58.0.12  |
+| expo-system-ui                  | 58.0.6   | 58.0.7   |
+| react-native                    | 0.88.0   | 0.88.1   |
+| @react-native/virtualized-lists | 0.88.0   | 0.88.1   |
+
+Expo packages retain corresponding tilde ranges; React Native and the explicitly
+pinned virtualized-lists peer move together. This stays on SDK 58 and React 19.3.0.
+PR #27's registry core 0.9.0 and Native binding 0.7.0 remain unchanged. No overrides,
+compatibility-check exclusions or force downgrade were introduced.
+
+The updated graph installs Expo CLI 58.1.17, which still requires Zod ^3.25.76.
+The fresh production report remains **3 high / 5 low / 0 critical**. The three high
+entries still propagate only GHSA-mrhx-c7xc-m3w5 through Expo, its nested CLI and
+Zod 3.25.76. The existing exact-version policy correctly blocked the new Expo/CLI
+versions before approval.
+
+The maintainer explicitly approved this template's exact patch carry-forward on
+30 October: Expo **58.0.21**, nested CLI **58.1.17**, root `expo: ~58.0.21` and
+Expo's `@expo/cli: ^58.1.17` edge. Zod version/range, advisory identity, installed
+paths, accepted severity and **7 November 00:00 UTC** deadline remain unchanged.
+Generic fail-closed logic is unchanged. Other versions/paths, app-level Zod use,
+new advisories, retired waivers and critical escalation still block. This approval
+is separate from the CLI package's exception.
+
+Compatibility checks, generated registry checks and Android/iOS Hermes exports
+pass on Node 22.23.4 and 24.22.1. Exports use the normal all-platform command with
+an isolated output directory and two workers; existing dist/device evidence is
+not overwritten. Updated safeguard tests also reject the superseded Expo/CLI
+versions, in addition to future drift and all previous boundary checks.
+
+Exact command results, live audit, proposal-before-approval evidence, source and
+bundle hashes, and storage inventory are retained under
+`.local-test-harnesses/form0-issue101-20261028/mobile-template-pr27-20261030/`.
+No application form logic, schema/record format, workflow check name, native
+project, device acceptance, publication or alert state is changed by this patch.

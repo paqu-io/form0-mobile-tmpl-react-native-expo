@@ -4,7 +4,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { evaluateAudit, EXCEPTION_EXPIRES } from "./audit-dependencies.mjs";
 
-const now = Date.parse("2026-10-28T12:00:00Z");
+const now = Date.parse("2026-10-30T12:00:00Z");
 const expiry = Date.parse("2026-11-07T00:00:00Z");
 const zodUrl = "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5";
 const cliPath = "node_modules/expo/node_modules/@expo/cli";
@@ -27,26 +27,26 @@ function recount(report) {
   };
 }
 
-// Independently characterized from the 28 October installed SDK 58 report, not policy constants.
+// Independently characterized from the 30 October installed SDK 58 report, not policy constants.
 function fixture() {
   const definitions = [
     [
       "@expo/cli",
-      "58.1.16",
+      "58.1.17",
       ["@expo/config", "@expo/metro-config", "@expo/prebuild-config", "zod"],
       "high",
       cliPath,
     ],
-    ["@expo/config", "58.0.8", ["deepmerge"], "low"],
-    ["@expo/local-build-cache-provider", "58.0.8", ["@expo/config"], "low"],
+    ["@expo/config", "58.0.9", ["deepmerge"], "low"],
+    ["@expo/local-build-cache-provider", "58.0.9", ["@expo/config"], "low"],
     [
       "@expo/metro-config",
-      "58.0.18",
+      "58.0.19",
       ["@expo/config"],
       "low",
       "node_modules/expo/node_modules/@expo/metro-config",
     ],
-    ["@expo/prebuild-config", "58.0.16", ["@expo/config"], "low"],
+    ["@expo/prebuild-config", "58.0.17", ["@expo/config"], "low"],
     [
       "deepmerge",
       "4.3.1",
@@ -62,7 +62,7 @@ function fixture() {
     ],
     [
       "expo",
-      "58.0.20",
+      "58.0.21",
       [
         "@expo/cli",
         "@expo/config",
@@ -79,9 +79,9 @@ function fixture() {
     packages: {
       "": {
         dependencies: {
-          expo: "~58.0.20",
-          "react-native": "0.88.0",
-          "@react-native/virtualized-lists": "0.88.0",
+          expo: "~58.0.21",
+          "react-native": "0.88.1",
+          "@react-native/virtualized-lists": "0.88.1",
         },
       },
     },
@@ -96,7 +96,7 @@ function fixture() {
     lock.packages[path] = { version };
     report.vulnerabilities[name] = { name, severity, via, nodes: [path] };
   }
-  lock.packages["node_modules/expo"].dependencies = { "@expo/cli": "^58.1.16" };
+  lock.packages["node_modules/expo"].dependencies = { "@expo/cli": "^58.1.17" };
   lock.packages[cliPath].dependencies = { zod: "^3.25.76" };
   recount(report);
   return { report, lock };
@@ -224,8 +224,8 @@ test("a reviewed advisory escalated to critical is not waived", () => {
 test("unexpected nodes and changed installed versions are not waived", () => {
   for (const [path, version] of [
     ["node_modules/zod", "3.25.77"],
-    ["node_modules/expo", "58.0.21"],
-    [cliPath, "58.1.17"],
+    ["node_modules/expo", "58.0.22"],
+    [cliPath, "58.1.18"],
   ]) {
     const input = fixture();
     input.lock.packages[path].version = version;
@@ -260,7 +260,7 @@ test("adding reviewed transitive Zod directly to the app requires review", () =>
 
 test("changing the reviewed root package range requires review", () => {
   const input = fixture();
-  input.lock.packages[""].dependencies.expo = "^58.0.20";
+  input.lock.packages[""].dependencies.expo = "^58.0.21";
   assert.deepEqual(evaluate(input).blocked, accepted);
 });
 
@@ -439,5 +439,16 @@ test("escalating a below-threshold branch does not extend the exception", () => 
     assert.ok(result.blocked.includes("@expo/config"));
     assert.ok(result.blocked.includes("@expo/cli"));
     assert.ok(result.blocked.includes("expo"));
+  }
+});
+
+test("superseded Expo versions do not reuse the new exact patch allowance", () => {
+  for (const [path, version] of [
+    ["node_modules/expo", "58.0.20"],
+    [cliPath, "58.1.16"],
+  ]) {
+    const input = fixture();
+    input.lock.packages[path].version = version;
+    assert.deepEqual(evaluate(input).blocked, accepted);
   }
 });

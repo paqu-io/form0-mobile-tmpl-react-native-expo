@@ -29,8 +29,10 @@ For ordinary usage questions, see [SUPPORT.md](./SUPPORT.md).
 
 ## Temporary starter tooling exception
 
-Approved on **28 October 2026**; expires **2026-11-07T00:00:00Z**. This is accepted
-temporary risk, not a patched dependency, clean audit or non-exploitability claim.
+Originally approved on **28 October 2026**, with the exact Expo patch context below
+explicitly carried forward on **30 October 2026**. The expiry remains
+**2026-11-07T00:00:00Z**. This is accepted temporary risk, not a patched dependency,
+clean audit or non-exploitability claim.
 It is separate from the form0 CLI and Native binding exceptions. The former
 braces/node-forge allowances are retired; this policy now permits only the Zod
 advisory below in the exact reviewed Expo tooling context.
@@ -40,18 +42,18 @@ then applies the fail-closed policy in `scripts/audit-dependencies.mjs`.
 [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5) concerns
 memory exhaustion while validating oversized collections. The installed Zod
 3.25.76 is within the advisory's `<4.6.6` affected range. At review time the latest
-Expo CLI 58.1.16 still requires `zod: ^3.25.76`; the published fixed range starts
+Expo CLI 58.1.17 still requires `zod: ^3.25.76`; the published fixed range starts
 at Zod 4.6.6, outside that supported dependency range.
 
 Only these installed packages and their reviewed audit edges are accepted:
 
 | Package   | Version | Installed path                           |
 | --------- | ------- | ---------------------------------------- |
-| expo      | 58.0.20 | node_modules/expo                        |
-| @expo/cli | 58.1.16 | node_modules/expo/node_modules/@expo/cli |
+| expo      | 58.0.21 | node_modules/expo                        |
+| @expo/cli | 58.1.17 | node_modules/expo/node_modules/@expo/cli |
 | zod       | 3.25.76 | node_modules/zod                         |
 
-The root must declare `expo: ~58.0.20`, Expo must require CLI `^58.1.16`, and that
+The root must declare `expo: ~58.0.21`, Expo must require CLI `^58.1.17`, and that
 CLI must require Zod `^3.25.76`. Even an audit reporting only the Zod leaf requires
 this complete installed parent context. Direct application Zod/CLI declarations,
 extra affected paths, changed versions/dependency edges and non-production copies
