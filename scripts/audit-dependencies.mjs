@@ -14,7 +14,7 @@ const levels = ["info", "low", "moderate", "high", "critical"];
 const isObject = (value) =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 const isBlocking = (severity) => ["high", "critical"].includes(severity);
-const rootRanges = { expo: "~58.0.20" };
+const rootRanges = { expo: "~58.0.21" };
 const excludedFlags = ["dev", "peer", "optional", "devOptional", "link"];
 
 function reviewed(
@@ -28,14 +28,15 @@ function reviewed(
   return { nodes, via, dependencies };
 }
 
-// Approved on 28 October for this exact Expo tooling chain, through 7 November only.
+// Originally approved on 28 October; exact SDK patch carry-forward approved on 30 October.
+// The same Zod advisory scope and 7 November deadline remain in force.
 // The former braces/node-forge allowances are retired; no app-level Zod use is waived.
 const graph = new Map([
   [
     "@expo/cli",
     reviewed(
       "@expo/cli",
-      "58.1.16",
+      "58.1.17",
       ["@expo/config", "@expo/metro-config", "@expo/prebuild-config", "zod"],
       ["node_modules/expo/node_modules/@expo/cli"],
       { zod: "^3.25.76" },
@@ -45,7 +46,7 @@ const graph = new Map([
     "expo",
     reviewed(
       "expo",
-      "58.0.20",
+      "58.0.21",
       [
         "@expo/cli",
         "@expo/config",
@@ -53,7 +54,7 @@ const graph = new Map([
         "@expo/metro-config",
       ],
       ["node_modules/expo"],
-      { "@expo/cli": "^58.1.16" },
+      { "@expo/cli": "^58.1.17" },
     ),
   ],
   ["zod", reviewed("zod", "3.25.76", [])],
