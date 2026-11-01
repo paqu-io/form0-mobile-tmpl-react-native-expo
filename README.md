@@ -164,7 +164,6 @@ See [SUPPORT.md](https://github.com/paqu-io/form0-mobile-tmpl-react-native-expo/
 
 [MIT](./LICENSE)
 
-
 ## Record lifecycle and saving
 
 The starter's demonstration routes explicitly open new records. When adapting the common
@@ -178,3 +177,9 @@ failed writes must reject, keeping editor work available for retry. The web star
 and partial connector failures; the mobile starter propagates SQLite failures before invoking the
 host's success callback. Adding retention or durable drafts to a production host also requires
 persisting/restoring the matching freshness companion outside saved record values.
+
+## Starter schema review
+
+The starter includes **Nature Observation** (simple), **Equipment Checkout** (intermediate), and **Building Condition Survey** (advanced). These schemas are identical between web and mobile. See the [manual walkthrough](docs/starter-schema-review.md) for field interactions, event alerts, contact copying, and validation examples.
+
+Original schemas and their assets remain under `archive/starter-schemas/2026-10-31/` for reference and are excluded from npm packages and CLI-generated projects.

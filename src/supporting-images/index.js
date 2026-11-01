@@ -8,12 +8,11 @@
  * 1. Add your image files to: assets/supporting-images/
  * 2. Run: npm run generate-images
  *
- * Images found: 2
+ * Images found: 1
  */
 
 const supportingImages = {
-  'palette.jpg': require('../../assets/supporting-images/palette.jpg'),
-  'topics.jpg': require('../../assets/supporting-images/topics.jpg'),
+  'evidence-photo-guide.png': require('../../assets/supporting-images/evidence-photo-guide.png'),
 };
 
 /**

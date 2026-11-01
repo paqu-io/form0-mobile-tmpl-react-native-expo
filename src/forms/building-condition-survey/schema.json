@@ -1,0 +1,969 @@
+{
+  "form": {
+    "id": "building-condition-survey",
+    "name": "Building Condition Survey",
+    "description": "Survey rooms, document defects, and arrange follow-up with a building layout and photo evidence.",
+    "location_enabled": true,
+    "location_required": false,
+    "status_field": {
+      "type": "StatusField",
+      "key": "@status",
+      "data_name": "status",
+      "label": "Review status",
+      "display": "default",
+      "enabled": true,
+      "visible": true,
+      "visible_conditions": null,
+      "read_only": false,
+      "read_only_conditions": null,
+      "default_value": "draft",
+      "choices": [
+        {
+          "value": "draft",
+          "label": "Draft",
+          "color": "#64748b"
+        },
+        {
+          "value": "review",
+          "label": "Ready for review",
+          "color": "#d97706"
+        },
+        {
+          "value": "complete",
+          "label": "Reviewed",
+          "color": "#15803d"
+        }
+      ]
+    },
+    "title_field": {
+      "type": "TitleField",
+      "key": "@title",
+      "data_name": "title",
+      "label": "Record title",
+      "display": "default",
+      "enabled": true,
+      "visible": true,
+      "visible_conditions": null,
+      "read_only": true,
+      "read_only_conditions": null,
+      "elements": ["building_ref", "building_name"]
+    },
+    "events": {
+      "code": "ON('change', 'overall_condition', function () {\n  if (CHOICEVALUE($overall_condition) === 'urgent') {\n    ALERT('Urgent follow-up', 'Describe the observation and record the next action and a follow-up contact.');\n  }\n});\n\nON('change', 'copy_assessor', function () {\n  if (CHOICEVALUE($copy_assessor) === 'yes' && $assessor) {\n    SETVALUE('follow_up_contact', $assessor);\n  }\n});\n\nON('validate-record', function () {\n  if ($follow_up_on && $inspection_on && DAYS($follow_up_on, $inspection_on) < 0) {\n    INVALID('The follow-up date cannot be before the inspection date.');\n  }\n});\n\nON('change', 'finding_priority', function () {\n  if (CHOICEVALUE($finding_priority) === 'urgent') {\n    ALERT('Document the next action', 'Record what should happen next for this observation.');\n  }\n});\n\nON('validate-repeatable', 'findings', function () {\n  if (CHOICEVALUE($finding_priority) === 'urgent' && (!$next_action || !$next_action.trim())) {\n    INVALID('Record a next action for this urgent observation.');\n  }\n});"
+    },
+    "elements": [
+      {
+        "type": "Section",
+        "key": "survey_details",
+        "data_name": "survey_details",
+        "label": "Survey details",
+        "display": "inline",
+        "description": null,
+        "description_mode": null,
+        "visible": true,
+        "visible_conditions": null,
+        "elements": [
+          {
+            "type": "TextField",
+            "key": "building_ref",
+            "data_name": "building_ref",
+            "label": "Building reference",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null
+          },
+          {
+            "type": "TextField",
+            "key": "building_name",
+            "data_name": "building_name",
+            "label": "Building name",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null
+          },
+          {
+            "type": "TextField",
+            "key": "assessor",
+            "data_name": "assessor",
+            "label": "Assessor",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null
+          },
+          {
+            "type": "DateField",
+            "key": "inspection_on",
+            "data_name": "inspection_on",
+            "label": "Inspection date",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": "now"
+          },
+          {
+            "type": "SingleChoiceField",
+            "key": "building_use",
+            "data_name": "building_use",
+            "label": "Building use",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "allow_other": true,
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "choices": [
+              {
+                "value": "residential",
+                "label": "Residential"
+              },
+              {
+                "value": "office",
+                "label": "Office"
+              },
+              {
+                "value": "community",
+                "label": "Community facility"
+              },
+              {
+                "value": "commercial",
+                "label": "Commercial"
+              }
+            ]
+          },
+          {
+            "type": "SingleChoiceField",
+            "key": "overall_condition",
+            "data_name": "overall_condition",
+            "label": "Overall observed condition",
+            "display": "radio",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "allow_other": false,
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "choices": [
+              {
+                "value": "good",
+                "label": "Good"
+              },
+              {
+                "value": "attention",
+                "label": "Needs attention"
+              },
+              {
+                "value": "urgent",
+                "label": "Urgent follow-up"
+              }
+            ]
+          },
+          {
+            "type": "TextField",
+            "key": "urgent_details",
+            "data_name": "urgent_details",
+            "label": "Urgent observation details",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": {
+              "field_id": "overall_condition",
+              "operator": "equal_to",
+              "value": "urgent"
+            },
+            "visible": false,
+            "visible_conditions": {
+              "field_id": "overall_condition",
+              "operator": "equal_to",
+              "value": "urgent"
+            },
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": true,
+            "supporting_image_path": "evidence-photo-guide.png",
+            "supporting_image_display": "dialog"
+          }
+        ]
+      },
+      {
+        "type": "BooleanField",
+        "key": "include_plan",
+        "data_name": "include_plan",
+        "label": "Add a building layout",
+        "display": "default",
+        "description": null,
+        "description_mode": null,
+        "required": false,
+        "required_conditions": null,
+        "visible": true,
+        "visible_conditions": null,
+        "read_only": false,
+        "read_only_conditions": null,
+        "default_value": "no",
+        "supporting_image": false,
+        "supporting_image_path": null,
+        "supporting_image_display": null,
+        "third_option_enabled": false,
+        "choices": [
+          {
+            "value": "yes",
+            "label": "Yes"
+          },
+          {
+            "value": "no",
+            "label": "No"
+          }
+        ]
+      },
+      {
+        "type": "BuildingPlanSection",
+        "key": "building_plan",
+        "data_name": "building_plan",
+        "label": "Building layout",
+        "description": "Draw the layout and inspect the floors, rooms, and components you add.",
+        "description_mode": "subtext",
+        "visible": false,
+        "visible_conditions": {
+          "field_id": "include_plan",
+          "operator": "equal_to",
+          "value": "yes"
+        },
+        "read_only": false,
+        "read_only_conditions": null,
+        "node_overrides": {
+          "floors": {
+            "extra_elements": [
+              {
+                "type": "TextField",
+                "key": "floor_reference",
+                "data_name": "floor_reference",
+                "label": "Floor reference",
+                "display": "default",
+                "description": "Optional reference used on the building drawings.",
+                "description_mode": "subtext",
+                "required": false,
+                "required_conditions": null,
+                "visible": true,
+                "visible_conditions": null,
+                "read_only": false,
+                "read_only_conditions": null,
+                "default_value": null,
+                "pattern": null,
+                "pattern_description": null,
+                "supporting_image": false,
+                "supporting_image_path": null,
+                "supporting_image_display": null
+              }
+            ]
+          },
+          "walls": {
+            "extra_elements": [
+              {
+                "type": "SingleChoiceField",
+                "key": "wall_condition",
+                "data_name": "wall_condition",
+                "label": "Observed wall condition",
+                "display": "default",
+                "description": null,
+                "description_mode": null,
+                "required": false,
+                "required_conditions": null,
+                "visible": true,
+                "visible_conditions": null,
+                "read_only": false,
+                "read_only_conditions": null,
+                "default_value": null,
+                "supporting_image": true,
+                "supporting_image_path": "evidence-photo-guide.png",
+                "supporting_image_display": "dialog",
+                "allow_other": false,
+                "is_searchable": false,
+                "is_searchable_mode": null,
+                "choices": [
+                  {
+                    "value": "good",
+                    "label": "Good"
+                  },
+                  {
+                    "value": "attention",
+                    "label": "Needs attention"
+                  },
+                  {
+                    "value": "urgent",
+                    "label": "Urgent follow-up"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "RepeatableSection",
+        "key": "rooms",
+        "data_name": "rooms",
+        "label": "Rooms surveyed",
+        "display": "drilldown",
+        "description": null,
+        "description_mode": null,
+        "visible": true,
+        "visible_conditions": null,
+        "location_enabled": false,
+        "location_required": false,
+        "title_field": {
+          "type": "TitleField",
+          "key": "@title",
+          "data_name": "title",
+          "label": "Record title",
+          "display": "default",
+          "enabled": true,
+          "visible": true,
+          "visible_conditions": null,
+          "read_only": true,
+          "read_only_conditions": null,
+          "elements": ["room_reference", "room_use"]
+        },
+        "elements": [
+          {
+            "type": "TextField",
+            "key": "room_reference",
+            "data_name": "room_reference",
+            "label": "Room reference",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null
+          },
+          {
+            "type": "SingleChoiceField",
+            "key": "room_use",
+            "data_name": "room_use",
+            "label": "Room use",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "allow_other": true,
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "choices": [
+              {
+                "value": "living",
+                "label": "Living area"
+              },
+              {
+                "value": "sleeping",
+                "label": "Sleeping area"
+              },
+              {
+                "value": "kitchen",
+                "label": "Kitchen"
+              },
+              {
+                "value": "bathroom",
+                "label": "Bathroom"
+              },
+              {
+                "value": "circulation",
+                "label": "Circulation"
+              }
+            ]
+          },
+          {
+            "type": "NumericField",
+            "key": "room_length_m",
+            "data_name": "room_length_m",
+            "label": "Room length (m)",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "min": 0.1,
+            "max": null,
+            "format": "float",
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null
+          },
+          {
+            "type": "NumericField",
+            "key": "room_width_m",
+            "data_name": "room_width_m",
+            "label": "Room width (m)",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "min": 0.1,
+            "max": null,
+            "format": "float",
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null
+          },
+          {
+            "type": "CalculatedField",
+            "key": "room_area_m2",
+            "data_name": "room_area_m2",
+            "label": "Room floor area (m²)",
+            "display": {
+              "style": "numeric"
+            },
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": true,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "calculate": "$room_length_m == null || $room_width_m == null ? null : ROUND($room_length_m * $room_width_m, 2)"
+          },
+          {
+            "type": "SingleChoiceField",
+            "key": "room_condition",
+            "data_name": "room_condition",
+            "label": "Room condition",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "allow_other": false,
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "choices": [
+              {
+                "value": "good",
+                "label": "Good"
+              },
+              {
+                "value": "attention",
+                "label": "Needs attention"
+              },
+              {
+                "value": "urgent",
+                "label": "Urgent follow-up"
+              }
+            ]
+          },
+          {
+            "type": "CalculatedField",
+            "key": "survey_reference",
+            "data_name": "survey_reference",
+            "label": "Survey reference",
+            "display": {
+              "style": "text"
+            },
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": true,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "calculate": "$room_reference ? $building_ref + ' / ' + $room_reference : null"
+          },
+          {
+            "type": "RepeatableSection",
+            "key": "findings",
+            "data_name": "findings",
+            "label": "Observations",
+            "display": "drilldown",
+            "description": null,
+            "description_mode": null,
+            "visible": true,
+            "visible_conditions": null,
+            "location_enabled": false,
+            "location_required": false,
+            "title_field": {
+              "type": "TitleField",
+              "key": "@title",
+              "data_name": "title",
+              "label": "Record title",
+              "display": "default",
+              "enabled": true,
+              "visible": true,
+              "visible_conditions": null,
+              "read_only": true,
+              "read_only_conditions": null,
+              "elements": ["finding_description", "finding_priority"]
+            },
+            "elements": [
+              {
+                "type": "TextField",
+                "key": "finding_description",
+                "data_name": "finding_description",
+                "label": "Observation",
+                "display": "default",
+                "description": "Describe what you saw, including its position in this area.",
+                "description_mode": "subtext",
+                "required": true,
+                "required_conditions": null,
+                "visible": true,
+                "visible_conditions": null,
+                "read_only": false,
+                "read_only_conditions": null,
+                "default_value": null,
+                "pattern": null,
+                "pattern_description": null,
+                "supporting_image": false,
+                "supporting_image_path": null,
+                "supporting_image_display": null
+              },
+              {
+                "type": "SingleChoiceField",
+                "key": "finding_priority",
+                "data_name": "finding_priority",
+                "label": "Follow-up priority",
+                "display": "radio",
+                "description": null,
+                "description_mode": null,
+                "required": true,
+                "required_conditions": null,
+                "visible": true,
+                "visible_conditions": null,
+                "read_only": false,
+                "read_only_conditions": null,
+                "default_value": "routine",
+                "supporting_image": false,
+                "supporting_image_path": null,
+                "supporting_image_display": null,
+                "allow_other": false,
+                "is_searchable": false,
+                "is_searchable_mode": null,
+                "choices": [
+                  {
+                    "value": "routine",
+                    "label": "Routine"
+                  },
+                  {
+                    "value": "soon",
+                    "label": "Plan work soon"
+                  },
+                  {
+                    "value": "urgent",
+                    "label": "Urgent follow-up"
+                  }
+                ]
+              },
+              {
+                "type": "TextField",
+                "key": "next_action",
+                "data_name": "next_action",
+                "label": "Proposed next action",
+                "display": "default",
+                "description": null,
+                "description_mode": null,
+                "required": false,
+                "required_conditions": null,
+                "visible": false,
+                "visible_conditions": {
+                  "or": [
+                    {
+                      "field_id": "finding_priority",
+                      "operator": "equal_to",
+                      "value": "soon"
+                    },
+                    {
+                      "field_id": "finding_priority",
+                      "operator": "equal_to",
+                      "value": "urgent"
+                    }
+                  ]
+                },
+                "read_only": false,
+                "read_only_conditions": null,
+                "default_value": null,
+                "pattern": null,
+                "pattern_description": null,
+                "supporting_image": false,
+                "supporting_image_path": null,
+                "supporting_image_display": null
+              },
+              {
+                "type": "PhotoField",
+                "key": "finding_photos",
+                "data_name": "finding_photos",
+                "label": "Observation photos",
+                "display": "default",
+                "description": null,
+                "description_mode": null,
+                "required": false,
+                "required_conditions": null,
+                "visible": true,
+                "visible_conditions": null,
+                "read_only": false,
+                "read_only_conditions": null,
+                "default_value": null,
+                "min_length": null,
+                "max_length": 5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "key": "survey_evidence",
+        "data_name": "survey_evidence",
+        "label": "Survey evidence",
+        "display": "drilldown",
+        "description": null,
+        "description_mode": null,
+        "visible": true,
+        "visible_conditions": null,
+        "elements": [
+          {
+            "type": "MultiChoiceField",
+            "key": "observed_issues",
+            "data_name": "observed_issues",
+            "label": "Issues observed",
+            "display": "checkbox",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "allow_other": true,
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "choices": [
+              {
+                "value": "damp",
+                "label": "Damp or leaks"
+              },
+              {
+                "value": "cracking",
+                "label": "Cracking"
+              },
+              {
+                "value": "wear",
+                "label": "Wear or deterioration"
+              },
+              {
+                "value": "access",
+                "label": "Access issues"
+              }
+            ]
+          },
+          {
+            "type": "PhotoField",
+            "key": "building_photos",
+            "data_name": "building_photos",
+            "label": "Building photos",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "min_length": null,
+            "max_length": 5
+          },
+          {
+            "type": "VideoField",
+            "key": "walkthrough_video",
+            "data_name": "walkthrough_video",
+            "label": "Optional walkthrough video",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "min_length": null,
+            "max_length": 1
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "key": "follow_up",
+        "data_name": "follow_up",
+        "label": "Follow-up",
+        "display": "inline",
+        "description": null,
+        "description_mode": null,
+        "visible": true,
+        "visible_conditions": null,
+        "elements": [
+          {
+            "type": "BooleanField",
+            "key": "copy_assessor",
+            "data_name": "copy_assessor",
+            "label": "Use assessor as follow-up contact",
+            "display": "default",
+            "description": "Choose Yes after entering the assessor. This copies the name once; the contact remains editable.",
+            "description_mode": "subtext",
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "third_option_enabled": false,
+            "choices": [
+              {
+                "value": "yes",
+                "label": "Yes"
+              },
+              {
+                "value": "no",
+                "label": "No"
+              }
+            ]
+          },
+          {
+            "type": "TextField",
+            "key": "follow_up_contact",
+            "data_name": "follow_up_contact",
+            "label": "Follow-up contact",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": {
+              "or": [
+                {
+                  "field_id": "overall_condition",
+                  "operator": "equal_to",
+                  "value": "attention"
+                },
+                {
+                  "field_id": "overall_condition",
+                  "operator": "equal_to",
+                  "value": "urgent"
+                }
+              ]
+            },
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null
+          },
+          {
+            "type": "DateField",
+            "key": "follow_up_on",
+            "data_name": "follow_up_on",
+            "label": "Follow-up date",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null
+          },
+          {
+            "type": "TextField",
+            "key": "follow_up_notes",
+            "data_name": "follow_up_notes",
+            "label": "Follow-up notes",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "key": "sign_off",
+        "data_name": "sign_off",
+        "label": "Sign-off",
+        "display": "drilldown",
+        "description": null,
+        "description_mode": null,
+        "visible": true,
+        "visible_conditions": null,
+        "elements": [
+          {
+            "type": "TextField",
+            "key": "survey_notes",
+            "data_name": "survey_notes",
+            "label": "Survey notes",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null
+          },
+          {
+            "type": "SignatureField",
+            "key": "surveyor_signature",
+            "data_name": "surveyor_signature",
+            "label": "Surveyor signature",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "agreement_text": "I confirm that this record reflects my observations."
+          }
+        ]
+      }
+    ]
+  }
+}

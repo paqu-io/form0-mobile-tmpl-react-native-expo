@@ -27,7 +27,19 @@ after a fix or mitigation is available. Please keep the report private during th
 
 For ordinary usage questions, see [SUPPORT.md](./SUPPORT.md).
 
-## Temporary starter tooling exception
+## Current starter audit status
+
+The 1 November 2026 compatibility update installs Expo 58.0.22 and its CLI 58.1.18.
+That CLI no longer depends on Zod, and the current lockfile contains no Zod package.
+A fresh production audit reports **0 high / 0 critical / 12 moderate** findings.
+The high/critical gate passes without applying a temporary exception; this is not
+an assertion that all dependencies are free of advisories.
+
+The historical policy below remains limited to its exact older dependency context
+and original deadline. No new package versions or advisories have been added to it.
+It does not waive findings in the current dependency tree.
+
+## Historical starter tooling exception
 
 Originally approved on **28 October 2026**, with the exact Expo patch context below
 explicitly carried forward on **30 October 2026**. The expiry remains
@@ -67,7 +79,7 @@ reproduction or a proof that untrusted inputs cannot reach those parsers. Treat
 untrusted plugins, plugin output and exposed development services as inputs that
 can require reassessment. See the [detailed review](./analyses/SDK_58_PATCH_COMPATIBILITY.md).
 
-The current raw production audit reports **3 high / 5 low / 0 critical** entries.
+The 30 October raw production audit reported **3 high / 5 low / 0 critical** entries.
 The three high entries propagate the single approved Zod advisory; lower-severity
 findings remain visible and below the unchanged high threshold. Node-forge is now
 1.4.2 and needs no former advisory waiver; braces has no high finding in this report.
@@ -80,8 +92,9 @@ unresolved findings block; clean reports can still pass. CI runs the safeguard
 tests on Node 22 and 24 before auditing. Accepted results explicitly say **NOT
 patched** and print the deadline; they do not hide the raw findings.
 
-`npm run security:audit:prod:raw` retains the unwaived report and currently exits
-nonzero. Review upstream support before **7 November** and remove the exception
-when compatible fixes are available. Do not force an SDK downgrade, a Zod major
-override or a further policy expansion to make CI pass. An unresolved finding at
+`npm run security:audit:prod:raw` retains the unwaived report; it exited
+nonzero for that historical dependency tree. Review upstream support before
+**7 November** and remove the exception when compatible fixes are available.
+Do not force an SDK downgrade, a Zod major override or a further policy expansion
+to make CI pass. An unresolved finding at
 expiry requires another explicit maintainer decision.
