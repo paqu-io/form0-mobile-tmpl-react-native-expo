@@ -1,0 +1,320 @@
+{
+  "form": {
+    "id": "nature-observation",
+    "name": "Nature Observation",
+    "description": "Record wildlife or plants seen on a walk, with identification notes and a photo.",
+    "location_enabled": true,
+    "location_required": false,
+    "title_field": {
+      "type": "TitleField",
+      "key": "@title",
+      "data_name": "title",
+      "label": "Record title",
+      "display": "default",
+      "enabled": true,
+      "visible": true,
+      "visible_conditions": null,
+      "read_only": true,
+      "read_only_conditions": null,
+      "elements": ["species_name", "observed_on"]
+    },
+    "events": {
+      "code": "ON('change', 'identification_confidence', function () {\n  if (CHOICEVALUE($identification_confidence) === 'uncertain') {\n    ALERT('Identification notes', 'Describe the features you noticed. Add a clear photo if you can, and leave the species name blank if you are unsure.');\n  }\n});"
+    },
+    "elements": [
+      {
+        "type": "Section",
+        "key": "observation",
+        "data_name": "observation",
+        "label": "Observation",
+        "display": "inline",
+        "description": null,
+        "description_mode": null,
+        "visible": true,
+        "visible_conditions": null,
+        "elements": [
+          {
+            "type": "DateField",
+            "key": "observed_on",
+            "data_name": "observed_on",
+            "label": "Observation date",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": "now"
+          },
+          {
+            "type": "TimeField",
+            "key": "observed_at",
+            "data_name": "observed_at",
+            "label": "Observation time",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null
+          },
+          {
+            "type": "TextField",
+            "key": "location_description",
+            "data_name": "location_description",
+            "label": "Where did you see it?",
+            "display": "default",
+            "description": "For example: beside the pond on the north trail.",
+            "description_mode": "subtext",
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null
+          },
+          {
+            "type": "SingleChoiceField",
+            "key": "organism_group",
+            "data_name": "organism_group",
+            "label": "Organism group",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "allow_other": true,
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "choices": [
+              {
+                "value": "bird",
+                "label": "Bird"
+              },
+              {
+                "value": "mammal",
+                "label": "Mammal"
+              },
+              {
+                "value": "insect",
+                "label": "Insect"
+              },
+              {
+                "value": "plant",
+                "label": "Plant"
+              },
+              {
+                "value": "fungus",
+                "label": "Fungus"
+              }
+            ]
+          },
+          {
+            "type": "TextField",
+            "key": "species_name",
+            "data_name": "species_name",
+            "label": "Species or common name",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null
+          },
+          {
+            "type": "SingleChoiceField",
+            "key": "identification_confidence",
+            "data_name": "identification_confidence",
+            "label": "Identification confidence",
+            "display": "radio",
+            "description": null,
+            "description_mode": null,
+            "required": true,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "allow_other": false,
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "choices": [
+              {
+                "value": "confident",
+                "label": "Confident"
+              },
+              {
+                "value": "uncertain",
+                "label": "Uncertain"
+              }
+            ]
+          },
+          {
+            "type": "NumericField",
+            "key": "individual_count",
+            "data_name": "individual_count",
+            "label": "Number observed",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": 1,
+            "min": 1,
+            "max": null,
+            "format": "integer",
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null
+          },
+          {
+            "type": "MultiChoiceField",
+            "key": "habitat",
+            "data_name": "habitat",
+            "label": "Habitat",
+            "display": "checkbox",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null,
+            "allow_other": true,
+            "is_searchable": false,
+            "is_searchable_mode": null,
+            "choices": [
+              {
+                "value": "woodland",
+                "label": "Woodland"
+              },
+              {
+                "value": "grassland",
+                "label": "Grassland"
+              },
+              {
+                "value": "wetland",
+                "label": "Wetland"
+              },
+              {
+                "value": "urban",
+                "label": "Urban or garden"
+              }
+            ]
+          },
+          {
+            "type": "TextField",
+            "key": "identification_notes",
+            "data_name": "identification_notes",
+            "label": "Identification notes",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": {
+              "field_id": "identification_confidence",
+              "operator": "equal_to",
+              "value": "uncertain"
+            },
+            "visible": false,
+            "visible_conditions": {
+              "field_id": "identification_confidence",
+              "operator": "equal_to",
+              "value": "uncertain"
+            },
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": true,
+            "supporting_image_path": "evidence-photo-guide.png",
+            "supporting_image_display": "dialog"
+          },
+          {
+            "type": "TextField",
+            "key": "observation_notes",
+            "data_name": "observation_notes",
+            "label": "Additional notes",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "pattern": null,
+            "pattern_description": null,
+            "supporting_image": false,
+            "supporting_image_path": null,
+            "supporting_image_display": null
+          },
+          {
+            "type": "PhotoField",
+            "key": "observation_photos",
+            "data_name": "observation_photos",
+            "label": "Observation photos",
+            "display": "default",
+            "description": null,
+            "description_mode": null,
+            "required": false,
+            "required_conditions": null,
+            "visible": true,
+            "visible_conditions": null,
+            "read_only": false,
+            "read_only_conditions": null,
+            "default_value": null,
+            "min_length": null,
+            "max_length": 3
+          }
+        ]
+      }
+    ]
+  }
+}

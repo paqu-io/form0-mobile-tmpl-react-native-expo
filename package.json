@@ -32,7 +32,8 @@
     "security:audit:prod": "node scripts/audit-dependencies.mjs",
     "security:audit:prod:raw": "npm audit --omit=dev --omit=peer --audit-level=high",
     "security:audit:policy:test": "node --test scripts/audit-dependencies.test.mjs",
-    "check": "npm run check:generated && npm run check:expo && npm run check:bundle"
+    "check": "npm run test:schemas && npm run check:generated && npm run check:expo && npm run check:bundle",
+    "test:schemas": "node --test tests/starter-schemas.test.mjs"
   },
   "dependencies": {
     "@react-native/virtualized-lists": "0.88.1",

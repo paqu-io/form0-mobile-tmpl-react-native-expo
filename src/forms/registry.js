@@ -1,26 +1,25 @@
-import demoSchema from './demo/schema.json';
+import natureSchema from "./nature-observation/schema.json";
+import equipmentSchema from "./equipment-checkout/schema.json";
+import buildingSchema from "./building-condition-survey/schema.json";
+import { starterForms } from "./catalog.js";
 
+// Keep a literal forms array so the CLI can add, update, and remove registrations.
 const forms = [
   {
-    id: 'demo-form',
-    title: 'Demo Enrollment',
-    description: 'A showcase schema with a bit of everything to exercise the renderer.',
-    loadSchema: async () => demoSchema,
+    ...starterForms[0],
+    id: "nature-observation",
+    loadSchema: async () => natureSchema,
   },
   {
-    id: 'demo-form-bis',
-    title: 'Demo Enrollment Bis',
-    description: 'A showcase schema with a bit of everything to exercise the renderer.',
-    tags: ['demo', 'test'],
-    loadSchema: () => import('./demo-bis/schema.json'),
+    ...starterForms[1],
+    id: "equipment-checkout",
+    loadSchema: async () => equipmentSchema,
   },
   {
-    id: 'demo-form-ter',
-    title: 'Demo Enrollment Ter',
-    description: 'A showcase schema with a bit of everything to exercise the renderer.',
-    tags: ['demo', 'test'],
-    loadSchema: () => import('./demo-ter/schema.json'),
-  }
+    ...starterForms[2],
+    id: "building-condition-survey",
+    loadSchema: async () => buildingSchema,
+  },
 ];
 
 export const DEFAULT_FORM_ID = forms[0]?.id ?? null;

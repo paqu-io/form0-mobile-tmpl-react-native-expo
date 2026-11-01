@@ -1,0 +1,27 @@
+{
+  "repository": "form0-mobile-tmpl-react-native-expo",
+  "source_commit": "c4c94a97911afbf4e8bf200373cbdd75e9852bfb",
+  "archived_on": "2026-10-31",
+  "files": [
+    {
+      "path": "src/forms/demo/schema.json",
+      "sha256": "9ffcffabdf3b24955a63c3caafe31439d7a00e292539328dad94e59b68283cfd"
+    },
+    {
+      "path": "src/forms/demo-bis/schema.json",
+      "sha256": "e6e5432108bfcd4d60e767fc2d25da6289baa7c6bccc5c03368f5aab86ed92ff"
+    },
+    {
+      "path": "src/forms/demo-ter/schema.json",
+      "sha256": "eda0ba6578f1a0d6b8b8edba9d10e79818d3f221738700f2f0c12d12c323b971"
+    },
+    {
+      "path": "assets/supporting-images/palette.jpg",
+      "sha256": "b601c258b9d71bf0c72b5c93f85d24a4bd0320d98831ca9cbb0bef2271ce15b5"
+    },
+    {
+      "path": "assets/supporting-images/topics.jpg",
+      "sha256": "5e7688088359512ac6a89eb8c37d43ab2f1d9b4bf98615933ac40f0aac1329a4"
+    }
+  ]
+}
