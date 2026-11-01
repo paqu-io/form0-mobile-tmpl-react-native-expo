@@ -137,3 +137,41 @@ bundle hashes, and storage inventory are retained under
 `.local-test-harnesses/form0-issue101-20261028/mobile-template-pr27-20261030/`.
 No application form logic, schema/record format, workflow check name, native
 project, device acceptance, publication or alert state is changed by this patch.
+
+## 1 November 2026: PR #31 compatibility patch follow-up
+
+Both quality jobs for PR #31 fail at `expo install --check`, after the starter
+schema tests and generated-image check pass. The same online check fails locally
+with the same expected versions:
+
+| Package     | Previous | Selected |
+| ----------- | -------- | -------- |
+| expo        | 58.0.21  | 58.0.22  |
+| expo-sqlite | 58.0.14  | 58.0.15  |
+
+The patch advances those two tilde ranges and refreshes the npm lockfile using
+Expo's package installer. React Native 0.88.1, React 19.3.0 and the published
+form0-core/form0-react-native 0.11.0 dependencies remain unchanged. There are no
+SDK-major upgrades, dependency overrides or compatibility-check exclusions.
+
+Expo 58.0.22 requires CLI ^58.1.18. The resolved CLI 58.1.18 no longer depends on
+Zod, and no Zod installation remains in the lockfile. A fresh raw production audit
+reports **0 high / 0 critical / 12 moderate** findings. The existing production
+policy passes without applying an exception. No exception scope, deadline,
+threshold, audit logic or CI workflow is changed.
+
+The earlier exception sections above record historical decisions for their exact
+dependency graphs; they are not approvals for the current dependency versions.
+The current update requires no new accepted-risk decision. Moderate findings
+remain visible and below the unchanged high/critical threshold.
+
+Verification passes on Node **22.23.4** and **24.22.1**:
+
+- `npm run check`: all eight schema tests, generated-image verification, online
+  Expo compatibility validation, and Android/iOS Hermes exports.
+- `npm run security:audit:policy:test`: all 23 safeguard tests.
+- `npm run security:audit:prod`: no accepted exceptions and no high/critical
+  findings; all 12 moderate findings remain reported.
+
+A clean `npm ci` on Node 22 also succeeds with the updated lockfile. Physical
+device testing and remote CI reruns are not part of this local verification.
