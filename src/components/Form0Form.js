@@ -8,6 +8,7 @@ import {
   regenerateRepeatableRecordIds,
 } from '../lib/record-utils.js';
 import { isLocalStorageEnabled, storeStructuredRecord } from '../lib/local-record-store.js';
+import { mediaPicker } from '../lib/media-picker.js';
 
 const FIELD_KEY_MODE = form0Config.output?.useKeys ? 'prefer-key' : 'data-name';
 const cloneRecord = (value) => {
@@ -203,6 +204,7 @@ export default function Form0Form({
       customTheme={effectiveCustomTheme}
       showPrimaryActionsInViewMode={effectiveShowPrimaryActionsInViewMode}
       imageResolver={effectiveImageResolver}
+      mediaPicker={mediaPicker}
       renderers={renderers}
       {...props}
     />

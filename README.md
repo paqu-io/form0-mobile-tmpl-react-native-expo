@@ -47,6 +47,7 @@ CLI remains the recommended route because it guides project selection and local 
 - Example form selection and rendering screens
 - Generated supporting-image registry
 - Offline-first storage with `expo-sqlite`
+- Photo and video capture with `expo-image-picker`
 - form0-cli application-server integration
 
 ## Project layout
@@ -108,6 +109,18 @@ Offline-first local persistence is enabled by default through `expo-sqlite`:
 Change these values or disable local persistence in `form0.config.js`. Treat exported database
 files as sensitive user data and define application-appropriate retention and synchronization
 rules before production use.
+
+## Photos and videos
+
+`PhotoField` and `VideoField` take photos and videos with the camera or choose them from the
+library, through `src/lib/media-picker.js` (`expo-image-picker`), which `Form0Form` passes to
+`FormRenderer` as `mediaPicker`. Picked files are copied into the app's documents folder under
+`form0-media/`, because the picker's own copies are temporary, and records store their local
+`file://` URL with `upload_status: 'local'`. Nothing is uploaded: send the files to your backend
+when you sync records. Removing an item from a record does not delete its file.
+
+The permission messages for development and store builds are set in `app.json`; Expo Go uses its
+own.
 
 ## Connector behavior
 
