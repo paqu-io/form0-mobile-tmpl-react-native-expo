@@ -22,6 +22,14 @@
     "plugins": [
       "expo-asset",
       "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to attach your photos and videos to forms.",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to take photos and videos for your forms.",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to record sound with your videos."
+        }
+      ],
       "expo-sqlite",
       "expo-status-bar",
       [
